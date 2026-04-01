@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+
 namespace Klondike.Collections {
     public sealed class HashMap<T> where T : IEquatable<T> {
         private struct HashValue<Q> where Q : IEquatable<Q> {
@@ -13,42 +14,48 @@ namespace Klondike.Collections {
             }
         }
 
-        private readonly HashValue<T>[] table;
-        private uint count, capacity;
+        private readonly HashValue<T>[] m_Table;
+        private uint m_Count, m_Capacity;
 
         public HashMap(int maxCount) {
-            capacity = (uint)maxCount;
-            count = 0;
-            table = new HashValue<T>[capacity];
+            m_Capacity = (uint)maxCount;
+            m_Count = 0;
+            m_Table = new HashValue<T>[m_Capacity];
         }
 
-        public int Count => (int)count;
+        public int Count => (int)m_Count;
+
         public void Clear() {
-            count = 0;
-            Array.Clear(table, 0, (int)capacity);
+            m_Count = 0;
+            Array.Clear(m_Table, 0, (int)m_Capacity);
         }
+
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public int Add(T key) {
-            uint hash = (uint)key.GetHashCode();
-            uint i = hash % capacity;
-            HashValue<T> node = table[i];
+            var hash = (uint)key.GetHashCode();
+            uint i = hash % m_Capacity;
+            HashValue<T> node = m_Table[i];
 
             while (node.Hash != 0) {
-                if (node.Hash == hash && key.Equals(node.Value)) { return (int)i; }
-                if (++i >= capacity) {
+                if (node.Hash == hash && key.Equals(node.Value)) {
+                    return (int)i;
+                }
+
+                if (++i >= m_Capacity) {
                     i = 0;
                 }
-                node = table[i];
+
+                node = m_Table[i];
             }
 
-            ++count;
-            table[i].Set(key, hash);
-
+            ++m_Count;
+            m_Table[i].Set(key, hash);
             return -1;
         }
+
         public ref T this[int index] {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return ref table[index].Value; }
+            get => ref m_Table[index].Value;
         }
     }
 }

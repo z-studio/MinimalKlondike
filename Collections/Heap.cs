@@ -1,74 +1,83 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+
 namespace Klondike.Collections {
     public sealed class Heap<T> where T : IComparable<T> {
-        private int size;
-        private T[] nodes;
+        private int m_Size;
+        private T[] m_Nodes;
 
         public Heap(int maxNodes) {
-            size = 0;
-            nodes = new T[maxNodes];
+            m_Size = 0;
+            m_Nodes = new T[maxNodes];
         }
+
         public int Count {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return size; }
+            get => m_Size;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear() {
-            size = 0;
+            m_Size = 0;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Enqueue(T node) {
-            int current = size++;
+            int current = m_Size++;
+
             while (current > 0) {
                 int child = current;
                 current = (current - 1) >> 1;
-                T value = nodes[current];
+                T value = m_Nodes[current];
+
                 if (node.CompareTo(value) >= 0) {
                     current = child;
                     break;
                 }
 
-                nodes[child] = value;
+                m_Nodes[child] = value;
             }
 
-            nodes[current] = node;
+            m_Nodes[current] = node;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public T Dequeue() {
-            T result = nodes[0];
+            T result = m_Nodes[0];
             int current = 0;
-            T end = nodes[--size];
+            T end = m_Nodes[--m_Size];
 
             do {
                 int last = current;
                 int child = (current << 1) + 1;
 
-                if (size > child && end.CompareTo(nodes[child]) > 0) {
+                if (m_Size > child && end.CompareTo(m_Nodes[child]) > 0) {
                     current = child;
 
-                    if (size > ++child && nodes[current].CompareTo(nodes[child]) > 0) {
+                    if (m_Size > ++child && m_Nodes[current].CompareTo(m_Nodes[child]) > 0) {
                         current = child;
                     }
-                } else if (size > ++child && end.CompareTo(nodes[child]) > 0) {
+                } else if (m_Size > ++child && end.CompareTo(m_Nodes[child]) > 0) {
                     current = child;
                 } else {
                     break;
                 }
 
-                nodes[last] = nodes[current];
+                m_Nodes[last] = m_Nodes[current];
             } while (true);
 
-            nodes[current] = end;
-
+            m_Nodes[current] = end;
             return result;
         }
+
         private void Resize() {
-            T[] newNodes = new T[(int)(nodes.Length * 1.5)];
-            for (int i = 0; i < nodes.Length; i++) {
-                newNodes[i] = nodes[i];
+            var newNodes = new T[(int)(m_Nodes.Length * 1.5)];
+
+            for (var i = 0; i < m_Nodes.Length; i++) {
+                newNodes[i] = m_Nodes[i];
             }
-            nodes = newNodes;
+
+            m_Nodes = newNodes;
         }
 
         public override string ToString() {
