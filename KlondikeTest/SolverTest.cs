@@ -10,7 +10,7 @@ namespace KlondikeTest {
             m_Output = output;
         }
 
-        private SolveResult SolveGame(
+        private ESolveResult SolveGame(
             int expectedMoves,
             int expectedFoundation,
             bool includeFoundation,
@@ -58,7 +58,7 @@ namespace KlondikeTest {
 
         [Fact]
         public void Game_Solve_Minimal_01_98_3() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 98,
                 52,
                 false,
@@ -69,12 +69,12 @@ namespace KlondikeTest {
                 300000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_02_104_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 104,
                 52,
                 false,
@@ -85,12 +85,12 @@ namespace KlondikeTest {
                 600000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_03_108_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 108,
                 52,
                 false,
@@ -101,12 +101,12 @@ namespace KlondikeTest {
                 400000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_04_129_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 129,
                 52,
                 false,
@@ -117,12 +117,12 @@ namespace KlondikeTest {
                 500000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_05_80_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 80,
                 52,
                 true,
@@ -133,12 +133,12 @@ namespace KlondikeTest {
                 10000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_06_117_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 117,
                 52,
                 false,
@@ -149,12 +149,12 @@ namespace KlondikeTest {
                 3500000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_07_117_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 117,
                 52,
                 false,
@@ -165,12 +165,12 @@ namespace KlondikeTest {
                 400000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_08_132_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 132,
                 52,
                 false,
@@ -181,12 +181,12 @@ namespace KlondikeTest {
                 1000000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_09_123_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 123,
                 52,
                 false,
@@ -197,12 +197,12 @@ namespace KlondikeTest {
                 1500000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_10_134_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 134,
                 52,
                 false,
@@ -213,12 +213,12 @@ namespace KlondikeTest {
                 400000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_11_108_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 108,
                 52,
                 false,
@@ -229,12 +229,12 @@ namespace KlondikeTest {
                 600000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_12_101_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 101,
                 52,
                 false,
@@ -245,12 +245,12 @@ namespace KlondikeTest {
                 1600000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_12_102_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 102,
                 52,
                 false,
@@ -261,12 +261,12 @@ namespace KlondikeTest {
                 1800000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_13_115_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 115,
                 52,
                 false,
@@ -277,12 +277,12 @@ namespace KlondikeTest {
                 8000000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_14_139_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 139,
                 52,
                 false,
@@ -293,12 +293,12 @@ namespace KlondikeTest {
                 200000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Minimal_15_132_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 132,
                 52,
                 false,
@@ -309,12 +309,12 @@ namespace KlondikeTest {
                 300000
             );
 
-            Assert.Equal(SolveResult.Minimal, result);
+            Assert.Equal(ESolveResult.Minimal, result);
         }
 
         [Fact]
         public void Game_Solve_Impossible_01_17_1() {
-            SolveResult result = SolveGame(
+            ESolveResult result = SolveGame(
                 0,
                 17,
                 false,
@@ -325,7 +325,7 @@ namespace KlondikeTest {
                 600000
             );
 
-            Assert.Equal(SolveResult.Impossible, result);
+            Assert.Equal(ESolveResult.Impossible, result);
         }
     }
 }

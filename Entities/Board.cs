@@ -185,7 +185,7 @@ namespace Klondike.Entities {
             }
 
             return new SolveDetail() {
-                Result = bestCount == DeckSize ? SolveResult.Solved : SolveResult.Unknown,
+                Result = bestCount == DeckSize ? ESolveResult.Solved : ESolveResult.Unknown,
                 States = solves,
                 Time = timer.Elapsed
             };
@@ -308,12 +308,12 @@ namespace Klondike.Entities {
                 }
             }
 
-            SolveResult result = nodeCount < maxNodes ? maxFoundationCount == DeckSize ? !terminateEarly ? SolveResult.Minimal : SolveResult.Solved : SolveResult.Impossible : maxFoundationCount == DeckSize ? SolveResult.Solved : SolveResult.Unknown;
+            ESolveResult result = nodeCount < maxNodes ? maxFoundationCount == DeckSize ? !terminateEarly ? ESolveResult.Minimal : ESolveResult.Solved : ESolveResult.Impossible : maxFoundationCount == DeckSize ? ESolveResult.Solved : ESolveResult.Unknown;
             return new SolveDetail() {
                 Result = result,
                 States = nodeCount,
                 Time = timer.Elapsed,
-                Moves = result == SolveResult.Solved || result == SolveResult.Minimal ? MovesMade : 0
+                Moves = result == ESolveResult.Solved || result == ESolveResult.Minimal ? MovesMade : 0
             };
         }
         public SolveDetail SolveFast(int maxMoves = 250, int maxRounds = 20, int maxNodes = 2000000) {
@@ -436,7 +436,7 @@ namespace Klondike.Entities {
             }
 
             return new SolveDetail() {
-                Result = maxFoundationCount == DeckSize ? SolveResult.Solved : SolveResult.Unknown,
+                Result = maxFoundationCount == DeckSize ? ESolveResult.Solved : ESolveResult.Unknown,
                 States = nodeCount,
                 Time = timer.Elapsed
             };
@@ -576,7 +576,7 @@ namespace Klondike.Entities {
 
                 Card fromTop = pileFrom.TopNoCheck;
                 int pileFromLength = fromTop.Rank - fromBottom.Rank + 1;
-                bool kingMoved = fromTop.Rank != CardRank.King;
+                bool kingMoved = fromTop.Rank != ECardRank.King;
 
                 for (byte j = TableauStart; j <= TableauEnd; ++j) {
                     if (i == j) { continue; }
@@ -637,7 +637,7 @@ namespace Klondike.Entities {
                     if (tableauCard.Rank - talonCard.Rank == 1 && talonCard.IsRed != tableauCard.IsRed) {
                         moves.Add(new Move(WastePile, i, (byte)cardsToDraw, flip));
 
-                        if (talonCard.Rank == CardRank.King && !allMoves) { break; }
+                        if (talonCard.Rank == ECardRank.King && !allMoves) { break; }
                     }
                 }
             }
@@ -658,7 +658,7 @@ namespace Klondike.Entities {
                     Card cardTop = piles[j].Bottom;
                     if (cardTop.Rank - foundCard.Rank == 1 && foundCard.IsRed != cardTop.IsRed) {
                         moves.Add(new Move(i, j));
-                        if (foundCard.Rank == CardRank.King) { break; }
+                        if (foundCard.Rank == ECardRank.King) { break; }
                     }
                 }
             }
@@ -827,28 +827,28 @@ namespace Klondike.Entities {
                 for (int i = 0; i < deck.Length; i++) {
                     char suit = char.ToUpper(cardSet[i * 3 + 1]);
                     switch (suit) {
-                        case 'C': suit = (char)CardSuit.Clubs; break;
-                        case 'D': suit = (char)CardSuit.Diamonds; break;
-                        case 'S': suit = (char)CardSuit.Spades; break;
-                        case 'H': suit = (char)CardSuit.Hearts; break;
+                        case 'C': suit = (char)ECardSuit.Clubs; break;
+                        case 'D': suit = (char)ECardSuit.Diamonds; break;
+                        case 'S': suit = (char)ECardSuit.Spades; break;
+                        case 'H': suit = (char)ECardSuit.Hearts; break;
                         default: return false;
                     }
 
                     char rank = char.ToUpper(cardSet[i * 3]);
                     switch (rank) {
-                        case 'A': rank = (char)CardRank.Ace; break;
-                        case '2': rank = (char)CardRank.Two; break;
-                        case '3': rank = (char)CardRank.Three; break;
-                        case '4': rank = (char)CardRank.Four; break;
-                        case '5': rank = (char)CardRank.Five; break;
-                        case '6': rank = (char)CardRank.Six; break;
-                        case '7': rank = (char)CardRank.Seven; break;
-                        case '8': rank = (char)CardRank.Eight; break;
-                        case '9': rank = (char)CardRank.Nine; break;
-                        case 'T': rank = (char)CardRank.Ten; break;
-                        case 'J': rank = (char)CardRank.Jack; break;
-                        case 'Q': rank = (char)CardRank.Queen; break;
-                        case 'K': rank = (char)CardRank.King; break;
+                        case 'A': rank = (char)ECardRank.Ace; break;
+                        case '2': rank = (char)ECardRank.Two; break;
+                        case '3': rank = (char)ECardRank.Three; break;
+                        case '4': rank = (char)ECardRank.Four; break;
+                        case '5': rank = (char)ECardRank.Five; break;
+                        case '6': rank = (char)ECardRank.Six; break;
+                        case '7': rank = (char)ECardRank.Seven; break;
+                        case '8': rank = (char)ECardRank.Eight; break;
+                        case '9': rank = (char)ECardRank.Nine; break;
+                        case 'T': rank = (char)ECardRank.Ten; break;
+                        case 'J': rank = (char)ECardRank.Jack; break;
+                        case 'Q': rank = (char)ECardRank.Queen; break;
+                        case 'K': rank = (char)ECardRank.King; break;
                         default: return false;
                     }
 

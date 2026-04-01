@@ -1,13 +1,15 @@
 ﻿using System;
+
 namespace Klondike.Entities {
-    public enum SolveResult {
+    public enum ESolveResult {
         Unknown,
         Impossible,
         Solved,
         Minimal
     }
+
     public struct SolveDetail {
-        public SolveResult Result;
+        public ESolveResult Result;
         public int States;
         public TimeSpan Time;
         public int Moves;

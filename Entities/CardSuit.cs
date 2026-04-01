@@ -1,5 +1,5 @@
 ﻿namespace Klondike.Entities {
-    public enum CardSuit : byte {
+    public enum ECardSuit : byte {
         Clubs = 0,
         Diamonds,
         Spades,
