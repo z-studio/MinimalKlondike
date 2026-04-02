@@ -3,40 +3,34 @@ using System.Runtime.CompilerServices;
 
 namespace Klondike.Entities {
     /// <summary>
-    /// 为「从废牌堆出牌」生成合法走法时，枚举**当前局面下**所有**可能作为出牌对象**的牌，
-    /// 以及为够到该牌应在 <see cref="Move"/> 里携带的 <c>Count</c> / <c>Flip</c> 参数（由 <see cref="Board.CheckStockAndWaste"/> 消费）。
+    /// 帮 <see cref="Board.CheckStockAndWaste"/> 列出：当前局面下，所有「有可能从 talon（库存+废牌）一侧打出去」的牌，
+    /// 以及每条对应在 <see cref="Move"/> 里要怎么写「先翻几张 / 要不要先整叠回收」。
     /// </summary>
-    /// <remarks>
-    /// <para>库存（stock）与废牌（waste）在 <see cref="Pile"/> 中：下标 0 为叠底，<see cref="Pile.Size"/>-1 为叠顶；
-    /// 玩家从库存顶按配置的 drawCount 张一批翻到废牌顶。一张牌能否被打出，取决于它是否已成为废牌顶，
-    /// 或能否通过若干次「翻库存」或「整叠回收再发」后成为废牌顶。</para>
-    /// <para><see cref="CardsDrawn"/> 与 <see cref="Board.MakeMove"/> 的约定：</para>
-    /// <list type="bullet">
-    /// <item><description><b>≥ 0</b>：不先执行回收（<see cref="Move.Flip"/> 为 false）。数值会写入 <see cref="Move.Count"/>，
-    /// 表示从库存翻到废牌所需累计张数（与每轮翻 <c>drawCount</c> 张的步数换算在 <see cref="Board.MovesAdded"/> 等处处理）。</description></item>
-    /// <item><description><b>&lt; 0</b>：需要先走「废牌→库存」的回收流程（<see cref="Move.Flip"/> 为 true），
-    /// 取绝对值后仍作为 <see cref="Move.Count"/> 参与同样逻辑；具体编码由本类与 <see cref="Board"/> 共同约定。</description></item>
-    /// </list>
-    /// <para>返回的 <see cref="Calculate"/> 结果为条目数；第 <c>j</c> 条对应 <see cref="StockWaste"/>[j] 与 <see cref="CardsDrawn"/>[j]。</para>
-    /// </remarks>
     public sealed class TalonHelper {
         /// <summary>
-        /// 与 <see cref="CardsDrawn"/> 同下标：第 j 种 talon 出牌情形所指的牌面。
+        /// 第 j 条方案里，你最终要当「从废牌打出」的那张牌（牌面）。
         /// </summary>
         public readonly Card[] StockWaste;
 
         /// <summary>
-        /// 与 <see cref="StockWaste"/> 同下标：生成对应 <see cref="Move"/> 时使用的 Count 符号与数值（负表示需 Flip）。
+        /// 第 j 条方案里，生成 <see cref="Move"/> 时用的整数；<see cref="Board.CheckStockAndWaste"/> 的规则是：
+        /// <list type="number">
+        /// <item><description><c>0</c>：废牌顶已经是这张，不用先翻库存。</description></item>
+        /// <item><description><c>&gt; 0</c>：<see cref="Move.Flip"/> 为 <c>false</c>，数值写入 <see cref="Move.Count"/>，
+        /// 表示在打出前要先从库存向废牌翻过去多少张（具体落子在 <see cref="Board.MakeMove"/>）。</description></item>
+        /// <item><description><c>&lt; 0</c>：<see cref="Move.Flip"/> 为 <c>true</c>，要先走「废牌整叠回库存再发」这一类操作，
+        /// 绝对值写入 <see cref="Move.Count"/>（与 <see cref="Board.MakeMove"/> 里 <c>move.From == kWastePile &amp;&amp; move.Flip</c> 分支一致）。</description></item>
+        /// </list>
         /// </summary>
         public readonly int[] CardsDrawn;
 
         /// <summary>
-        /// 在「从库存直接可翻出」阶段已登记过的库存下标，避免与第四段逻辑重复枚举同一格。
+        /// 下面第 2 步已经登记过的「库存下标」，第 4 步遇到同一格要停，避免同一张牌列两次。
         /// </summary>
         private readonly bool[] m_StockUsed;
 
         /// <summary>
-        /// 为最多 <paramref name="talonSize"/> 种 talon 情形分配并行数组（与 Board 中 <c>kTalonSize</c> 一致）。
+        /// 分配缓冲；<paramref name="talonSize"/> 与 Board 里一次最多能列出的 talon 方案数（如 <c>kTalonSize</c>）一致。
         /// </summary>
         public TalonHelper(int talonSize) {
             StockWaste = new Card[talonSize];
@@ -45,7 +39,7 @@ namespace Klondike.Entities {
         }
 
         /// <summary>
-        /// 根据当前废牌摞、库存摞以及每次翻牌张数，填满 <see cref="StockWaste"/> / <see cref="CardsDrawn"/> 前缀，并返回条数。
+        /// 写入 <see cref="StockWaste"/> / <see cref="CardsDrawn"/> 的前缀，返回写了多少条。
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public int Calculate(int drawCount, Pile wastePile, Pile stockPile) {
@@ -53,17 +47,27 @@ namespace Klondike.Entities {
             Array.Fill(m_StockUsed, false);
 
             // Check waste
-            // --- 1) 废牌顶：已可见，无需再翻库存；Move.Count 为 0 ---
+            /*
+             * 先统一记一下 Pile 里下标：0 = 这一摞的底，Size-1 = 顶。
+             * 库存顶上的牌在 stockPile[stockSize-1]；废牌顶在 wastePile[wasteSize-1]（即 Bottom）。
+             * 每次从库存往废牌翻，是一批 drawCount 张（例如 3 张一翻）。
+             */
+
             int wasteSize = wastePile.Size;
 
+            // —— 第 1 步 ——
+            // 废牌非空时，顶上的那张现在就能当「从废牌打出」的候选；不需要先翻库存。
             if (wasteSize > 0) {
                 StockWaste[size] = wastePile.BottomNoCheck;
                 CardsDrawn[size++] = 0;
             }
 
             // Check cards waiting to be turned over from stock
-            // --- 2) 库存中「仅通过继续从库存顶翻牌（不先回收）」即可依次露在废牌顶的牌 ---
-            // 这些下标从「当前库存顶往回数，每隔 drawCount 张对齐一批的底张」起，向叠底每隔 drawCount 取样。
+            // —— 第 2 步 ——
+            // 只考虑「一直从库存往废牌翻」，不把废牌整叠收回的情况。
+            // 库存里每隔 drawCount 张取一个位置 i（从靠近顶的那一格对齐起，再往底跳）：
+            //   这些位置上的牌，就是「再翻若干批之后，会依次轮到成为废牌顶」的牌。
+            // CardsDrawn = stockSize - i：与 Board.MakeMove 里「先从库存翻到废牌」的 Count 编码一致。
             int stockSize = stockPile.Size;
             int position = stockSize - drawCount;
 
@@ -78,8 +82,11 @@ namespace Klondike.Entities {
             }
 
             // Check cards already turned over in the waste, meaning we have to "redeal" the deck to get to it
-            // --- 3) 废牌堆内部：被后来翻上的牌压在下面的「历史顶牌」；要够到需先回收再发（CardsDrawn 为负）---
-            // waste 下标 0 为叠底；每隔 drawCount 取一层，表示与发牌批次对齐的埋深位置。
+            // —— 第 3 步 ——
+            // 废牌里除了当前顶，下面还压着更早翻出来的牌；有的要「先回收整副再发」之后才有机会再露顶。
+            // 在废牌里从下标 drawCount-1 开始，每隔 drawCount 取一张（与「按批翻牌」对齐的深度），
+            // 这些深度上的牌对应「负的 CardsDrawn」，Board 会把它转成 Flip=true 的 Move。
+            // wasteSize--：顶已在第 1 步单独处理，这里只看「顶下面的身体」。
             int amountToDraw = stockSize + 1;
             wasteSize--;
 
@@ -89,7 +96,10 @@ namespace Klondike.Entities {
             }
 
             // Check cards in stock after a "redeal". Only happens when draw count > 1 and you have access to more cards in the talon
-            // --- 4) drawCount > 1 时：整副回收再发后，库存里还会出现新的「首批可见」对齐点；排除已在第 2 步记过的下标 ---
+            // —— 第 4 步 ——
+            // 仅在「每轮翻多张」（drawCount>1）且第 3 步的循环因下标越过废牌长度而结束时才有可能进来：
+            // 整副回收再发之后，库存里还会出现新的、与第 2 步不同对齐方式的「可顶牌」候选。
+            // 从算出的库存下标 i 往底每隔 drawCount 扫；若 i 已在第 2 步用过（m_StockUsed），说明和第 2 步重复，直接 break。
             if (position > wasteSize && wasteSize >= 0) {
                 amountToDraw += stockSize + wasteSize;
                 position = stockSize - position + wasteSize;
