@@ -14,7 +14,7 @@ namespace Klondike.Entities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(StateFast other) {
             fixed (byte* key = Key) {
-                ReadOnlySpan<byte> span = new ReadOnlySpan<byte>(key, k_KeyLength);
+                var span = new ReadOnlySpan<byte>(key, k_KeyLength);
                 return span.SequenceCompareTo(new ReadOnlySpan<byte>(other.Key, k_KeyLength));
             }
         }
