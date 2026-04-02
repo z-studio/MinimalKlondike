@@ -21,7 +21,10 @@ namespace Klondike.Entities {
         public byte Value2;
 
         public Move(byte from, byte to, byte count = 1, bool flip = false) {
+            // Value1：from、to 各 ≤15，只占半字节。to<<4 把 to 挪到「高 4 位」，再与 from 做按位或，拼成一个字节。
             Value1 = (byte)(from | (to << 4));
+
+            // Value2：count 用低 7 位；flip 为真时 |0x80 只打开最高位（与 count 互不重叠，前提是 count<128）
             Value2 = (byte)(count | (flip ? 0x80 : 0x00));
         }
 
@@ -29,6 +32,7 @@ namespace Klondike.Entities {
         /// 字母牌堆名：'A'→0，与 <see cref="Display"/> 一致。
         /// </summary>
         public Move(char from, char to, int count = 1, bool flip = false) {
+            // 先把 'A'→0、'B'→1… 得到与 byte 构造相同的 from/to，再同样打包进 Value1
             Value1 = (byte)(((byte)from - (byte)'A') | (((byte)to - (byte)'A') << 4));
             Value2 = (byte)(count | (flip ? 0x80 : 0x00));
         }
@@ -43,22 +47,22 @@ namespace Klondike.Entities {
 
         public byte From {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (byte)(Value1 & 0x0f);
+            get => (byte)(Value1 & 0x0f); // 0x0f=00001111₂，按位与：清掉高 4 位，留下 From
         }
 
         public byte To {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (byte)(Value1 >> 4);
+            get => (byte)(Value1 >> 4); // 右移 4 位：原来的高 4 位落到低 4 位，即 To
         }
 
         public byte Count {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (byte)(Value2 & 0x7f);
+            get => (byte)(Value2 & 0x7f); // 0x7f=01111111₂，去掉最高位，留下 Count
         }
 
         public bool Flip {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (Value2 & 0x80) != 0;
+            get => (Value2 & 0x80) != 0; // 0x80=10000000₂，若最高位为 1 则 Flip 为 true
         }
 
         public string Display => string.Concat((char)((byte)'A' + From), (char)((byte)'A' + To));
@@ -92,6 +96,7 @@ namespace Klondike.Entities {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() {
+            // int 低 8 位放 Value1，再高 8 位放 Value2（先左移 8 再或，两字节不重叠）
             return Value1 | (Value2 << 8);
         }
     }
