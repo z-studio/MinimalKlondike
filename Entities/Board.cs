@@ -206,7 +206,7 @@ namespace Klondike.Entities {
 
         /// <summary>
         /// 重复多局「随机推演」：每局从开局起，每步在 <see cref="GetAvailableMoves"/> 里随机选一着，直到无路可走或超出步数/轮数；
-        /// 跨局保留回收区张数最多的一局；若出现过完整解，则在解中保留步数较少者。并非系统搜索，也与常说的蒙特卡洛树搜索（MCTS）不同，不保证最优或必能找到解。
+        /// 跨局保留回收区张数最多的一局；若出现过完整解，则在解中保留步数较少者。并非系统搜索，不保证最优或必能找到解。
         /// </summary>
         public SolveDetail SolveRandom(int randomGamesToTry = 40000, int maxMoves = 250, int maxRounds = 20) {
             var moves = new List<Move>(64);
@@ -282,7 +282,7 @@ namespace Klondike.Entities {
             int maxNodes = 10000000,
             bool terminateEarly = false
         ) {
-            var open = new Heap<MoveIndex>((int)(maxNodes));
+            var open = new Heap<MoveIndex>(maxNodes);
             var closed = new HashMap<State>(FindPrime((int)(maxNodes * 1.1)));
 
             var nodeStorage = new MoveNode[maxNodes + 1];
@@ -349,7 +349,7 @@ namespace Klondike.Entities {
                 // Make available moves and add them to be evaulated
                 int canAdd = moves.Count;
 
-                for (int i = 0; i < canAdd; ++i) {
+                for (var i = 0; i < canAdd; ++i) {
                     Move move = moves[i];
                     int movesAdded = MovesAdded(move);
                     MakeMove(move);
@@ -361,7 +361,7 @@ namespace Klondike.Entities {
                         newCurrent = 255;
                     }
 
-                    Estimate newEstimate = new Estimate() {
+                    var newEstimate = new Estimate() {
                         Current = (byte)newCurrent, Remaining = (byte)MinimumMovesRemaining(m_RoundCount == maxRounds)
                     };
 
@@ -397,13 +397,12 @@ namespace Klondike.Entities {
                             }
 
                             if (!Solved) {
-                                short heuristic = (short)((newEstimate.Total << 1)
-                                                          + movesAdded
-                                                          + (kDeckSize - m_FoundationCount + (m_RoundCount << 1)));
+                                var heuristic = (short)((newEstimate.Total << 1)
+                                                        + movesAdded
+                                                        + (kDeckSize - m_FoundationCount + (m_RoundCount << 1)));
 
                                 open.Enqueue(
-                                    new MoveIndex()
-                                        { Index = nodeCount++, Priority = heuristic, Estimate = newEstimate }
+                                    new MoveIndex { Index = nodeCount++, Priority = heuristic, Estimate = newEstimate }
                                 );
 
                                 if (nodeCount >= maxNodes) {
@@ -484,10 +483,10 @@ namespace Klondike.Entities {
             // Add current state
             open.Enqueue(new MoveIndex() { Index = nodeCount - 1, Estimate = Estimate });
 
-            int bestSolutionMoveCount = maxMoves + 1;
-            int solutionIndex = -1;
+            var bestSolutionMoveCount = maxMoves + 1;
+            var solutionIndex = -1;
 
-            Stopwatch timer = new Stopwatch();
+            var timer = new Stopwatch();
             timer.Start();
 
             while (open.Count > 0 && nodeCount < maxNodes) {
@@ -515,7 +514,7 @@ namespace Klondike.Entities {
                 // Make available moves and add them to be evaulated
                 int canAdd = moves.Count;
 
-                for (int i = 0; i < canAdd; ++i) {
+                for (var i = 0; i < canAdd; ++i) {
                     Move move = moves[i];
                     int movesAdded = MovesAdded(move);
                     MakeMove(move);
@@ -527,7 +526,7 @@ namespace Klondike.Entities {
                         newCurrent = 255;
                     }
 
-                    Estimate newEstimate = new Estimate() {
+                    var newEstimate = new Estimate() {
                         Current = (byte)newCurrent, Remaining = (byte)MinimumMovesRemaining(m_RoundCount == maxRounds)
                     };
 
@@ -560,12 +559,11 @@ namespace Klondike.Entities {
                             }
 
                             if (!Solved) {
-                                short heuristic = (short)((newEstimate.Total << 2)
-                                                          + (kDeckSize - m_FoundationCount + (m_RoundCount << 1)));
+                                var heuristic = (short)((newEstimate.Total << 2)
+                                                        + (kDeckSize - m_FoundationCount + (m_RoundCount << 1)));
 
                                 open.Enqueue(
-                                    new MoveIndex()
-                                        { Index = nodeCount++, Priority = heuristic, Estimate = newEstimate }
+                                    new MoveIndex { Index = nodeCount++, Priority = heuristic, Estimate = newEstimate }
                                 );
 
                                 if (nodeCount >= maxNodes) {
@@ -646,7 +644,9 @@ namespace Klondike.Entities {
             }
         }
 
-        /// <summary>严格按 <see cref="MakeMove"/> 的逆序恢复牌面与计数（搜索回溯时用）。</summary>
+        /// <summary>
+        /// 严格按 <see cref="MakeMove"/> 的逆序恢复牌面与计数（搜索回溯时用）。
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public void UndoMove() {
             Move move = m_MovesMade[--m_MovesTotal];
@@ -732,7 +732,9 @@ namespace Klondike.Entities {
             }
         }
 
-        /// <summary>黑套（梅花/黑桃）与红套（方块/红桃）回收栈的「当前最矮高度+1」，用于 <see cref="CanMoveToFoundation"/> 与自动收牌判断。</summary>
+        /// <summary>
+        /// 黑套（梅花/黑桃）与红套（方块/红桃）回收栈的「当前最矮高度+1」，用于 <see cref="CanMoveToFoundation"/> 与自动收牌判断。
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private void SetFoundationMin() {
             int min1 = m_Piles[kFoundation1].Size;
@@ -776,7 +778,7 @@ namespace Klondike.Entities {
                 byte cardFoundation = CanMoveToFoundation(fromBottom, ref foundationMinimum);
 
                 if (cardFoundation != 255) {
-                    Move temp = new Move(i, cardFoundation, 1, pileFromSize > 1 && pileFrom.UpSize == 1);
+                    var temp = new Move(i, cardFoundation, 1, pileFromSize > 1 && pileFrom.UpSize == 1);
 
                     // is this an auto move?
                     if (!allMoves && (int)fromBottom.Rank <= foundationMinimum) {
@@ -843,7 +845,9 @@ namespace Klondike.Entities {
             return false;
         }
 
-        /// <summary>委托 <see cref="TalonHelper.Calculate"/> 枚举可打出的 talon 侧牌，并生成带 Count/Flip 的 <see cref="Move"/>。</summary>
+        /// <summary>
+        /// 委托 <see cref="TalonHelper.Calculate"/> 枚举可打出的 talon 侧牌，并生成带 Count/Flip 的 <see cref="Move"/>。
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private bool CheckStockAndWaste(List<Move> moves, bool allMoves = false) {
             int talonCount = m_Helper.Calculate(m_DrawCount, m_Piles[kWastePile], m_Piles[kStockPile]);
@@ -892,7 +896,9 @@ namespace Klondike.Entities {
             return false;
         }
 
-        /// <summary>回收位 → 桌面（仅当 <see cref="AllowFoundationToTableau"/>）；极少用于最优求解。</summary>
+        /// <summary>
+        /// 回收位 → 桌面（仅当 <see cref="AllowFoundationToTableau"/>）；极少用于最优求解。
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private void CheckFoundation(List<Move> moves) {
             // Check foundation to tableau, very rarely needed to solve optimally
@@ -933,7 +939,9 @@ namespace Klondike.Entities {
             get => new() { Current = (byte)MovesMade, Remaining = (byte)MinimumMovesRemaining() };
         }
 
-        /// <summary>乐观下界：库存/废牌翻动次数估计 + 桌面与废牌中「挡住各花色更小牌」的额外步数近似，用于 <see cref="Estimate"/>。</summary>
+        /// <summary>
+        /// 乐观下界：库存/废牌翻动次数估计 + 桌面与废牌中「挡住各花色更小牌」的额外步数近似，用于 <see cref="Estimate"/>。
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private int MinimumMovesRemaining(bool lastRound = false) {
             Pile wastePile = m_Piles[kWastePile];
@@ -979,7 +987,9 @@ namespace Klondike.Entities {
             return moves;
         }
 
-        /// <summary>闭集短键：回收高度、近两步 Move 字节、上一步源摞顶牌 ID、库存/废牌张数（信息量少，适合 <see cref="SolveFast"/>）。</summary>
+        /// <summary>
+        /// 闭集短键：回收高度、近两步 Move 字节、上一步源摞顶牌 ID、库存/废牌张数（信息量少，适合 <see cref="SolveFast"/>）。
+        /// </summary>
         public StateFast GameStateFast() {
             var key = new StateFast();
             var z = 0;
@@ -1041,7 +1051,7 @@ namespace Klondike.Entities {
                 Pile pile = m_Piles[order[i]];
                 int upSize = pile.UpSize;
 
-                int added = 10;
+                var added = 10;
                 mask <<= 6;
 
                 if (upSize > 0) {
@@ -1053,7 +1063,7 @@ namespace Klondike.Entities {
                 mask <<= 4;
                 mask |= upSize--;
 
-                for (int j = 0; j < upSize; ++j) {
+                for (var j = 0; j < upSize; ++j) {
                     mask <<= 1;
                     mask |= pile.UpNoCheck(j).Order;
                 }
@@ -1071,7 +1081,9 @@ namespace Klondike.Entities {
             return key;
         }
 
-        /// <summary>一步 Move 折算成「点按次数」近似（尤其 talon 多步翻牌），供搜索结点 <see cref="Estimate.Current"/> 累加。</summary>
+        /// <summary>
+        /// 一步 Move 折算成「点按次数」近似（尤其 talon 多步翻牌），供搜索结点 <see cref="Estimate.Current"/> 累加。
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private int MovesAdded(Move move) {
             var movesAdded = 1;
@@ -1090,7 +1102,9 @@ namespace Klondike.Entities {
             return movesAdded;
         }
 
-        /// <summary>随机挑合法步；偏向少选「很费点击」的 talon/回收步（需多次重抽才接受）。</summary>
+        /// <summary>
+        /// 随机挑合法步；偏向少选「很费点击」的 talon/回收步（需多次重抽才接受）。
+        /// </summary>
         public Move GetRandomMove(List<Move> moves) {
             var drawHit = 0;
 
@@ -1116,7 +1130,9 @@ namespace Klondike.Entities {
             } while (true);
         }
 
-        /// <summary>若该牌可放到对应花色回收顶则返回该摞下标，否则 255；<paramref name="foundationMinimum"/> 输出黑/红套较低阈值供自动收牌判断。</summary>
+        /// <summary>
+        /// 若该牌可放到对应花色回收顶则返回该摞下标，否则 255；<paramref name="foundationMinimum"/> 输出黑/红套较低阈值供自动收牌判断。
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private byte CanMoveToFoundation(Card card, ref int foundationMinimum) {
             int pile = kFoundationStart + (int)card.Suit;
@@ -1132,13 +1148,15 @@ namespace Klondike.Entities {
 
         #region 发牌、洗牌与重置
 
-        /// <summary>从文本解析整副牌顺序写入 <see cref="m_Deck"/> 并 <see cref="SetupInitial"/>；格式见仓库内用法（支持两种编码）。</summary>
+        /// <summary>
+        /// 从文本解析整副牌顺序写入 <see cref="m_Deck"/> 并 <see cref="SetupInitial"/>；格式见仓库内用法（支持两种编码）。
+        /// </summary>
         public bool SetDeal(string cardSet) {
             if (cardSet.Length < m_Deck.Length * 3 - 1) {
                 return false;
             }
 
-            int decks = m_Deck.Length / 52;
+            var decks = m_Deck.Length / 52;
             var used = new int[52];
 
             if (cardSet[2] == ' ') {
@@ -1261,7 +1279,9 @@ namespace Klondike.Entities {
             return true;
         }
 
-        /// <summary>数字格式牌串中单张解析：三位数字编码 suit/rank。</summary>
+        /// <summary>
+        /// 数字格式牌串中单张解析：三位数字编码 suit/rank。
+        /// </summary>
         private int GetCard(string cardSet, int index) {
             int suit = (cardSet[index + 2] ^ 0x30) - 1;
 
@@ -1273,7 +1293,9 @@ namespace Klondike.Entities {
             return suit * 13 + rank - 1;
         }
 
-        /// <summary>导出当前 <see cref="m_Deck"/> 为字符串（与 <see cref="SetDeal"/> 互逆之一）。</summary>
+        /// <summary>
+        /// 导出当前 <see cref="m_Deck"/> 为字符串（与 <see cref="SetDeal"/> 互逆之一）。
+        /// </summary>
         public string GetDeal(bool numbers = true) {
             var cardSet = new StringBuilder(m_Deck.Length * 3);
 
@@ -1322,7 +1344,9 @@ namespace Klondike.Entities {
             }
         }
 
-        /// <summary>兼容 Green Felt 等外部发牌器的确定性洗牌与切牌布局。</summary>
+        /// <summary>
+        /// 兼容 Green Felt 等外部发牌器的确定性洗牌与切牌布局。
+        /// </summary>
         public void ShuffleGreenFelt(uint seed) {
             var rnd = new GreenRandom { Seed = seed };
 
@@ -1369,7 +1393,9 @@ namespace Klondike.Entities {
             Reset();
         }
 
-        /// <summary>随机或指定种子洗牌，<see cref="SetupInitial"/> 后返回所用种子（便于复现）。</summary>
+        /// <summary>
+        /// 随机或指定种子洗牌，<see cref="SetupInitial"/> 后返回所用种子（便于复现）。
+        /// </summary>
         public int Shuffle(int dealNumber = -1) {
             if (dealNumber != -1) {
                 m_Random = new Random(dealNumber);
@@ -1396,7 +1422,9 @@ namespace Klondike.Entities {
             return dealNumber;
         }
 
-        /// <summary>按 Klondike 规则从 <see cref="m_Deck"/> 发成七列三角、剩余进库存；清空废牌与回收；快照到 <see cref="m_InitialState"/>。</summary>
+        /// <summary>
+        /// 按 Klondike 规则从 <see cref="m_Deck"/> 发成七列三角、剩余进库存；清空废牌与回收；快照到 <see cref="m_InitialState"/>。
+        /// </summary>
         private void SetupInitial() {
             Array.Fill(m_State, Card.Empty);
             m_InitialPiles[kWastePile].Reset();
@@ -1426,7 +1454,9 @@ namespace Klondike.Entities {
             Array.Copy(m_State, m_InitialState, m_State.Length);
         }
 
-        /// <summary>恢复开局：<see cref="m_State"/>、<see cref="m_Piles"/> 从初始拷贝，清空步历史与计数。</summary>
+        /// <summary>
+        /// 恢复开局：<see cref="m_State"/>、<see cref="m_Piles"/> 从初始拷贝，清空步历史与计数。
+        /// </summary>
         public void Reset() {
             m_FoundationCount = 0;
             m_FoundationMinimumBlack = 0;
@@ -1439,7 +1469,9 @@ namespace Klondike.Entities {
             Array.Copy(m_InitialPiles, m_Piles, m_Piles.Length);
         }
 
-        /// <summary>自检：总张数守恒且各列明牌红黑交替。</summary>
+        /// <summary>
+        /// 自检：总张数守恒且各列明牌红黑交替。
+        /// </summary>
         public bool VerifyGameState() {
             int count = m_Deck.Length;
 
@@ -1483,7 +1515,9 @@ namespace Klondike.Entities {
             return true;
         }
 
-        /// <summary>将 <see cref="m_MovesMade"/> 序列折算为近似「玩家点击/步数」计数（与 <see cref="Estimate.Current"/> 同源思路）。</summary>
+        /// <summary>
+        /// 将 <see cref="m_MovesMade"/> 序列折算为近似「玩家点击/步数」计数（与 <see cref="Estimate.Current"/> 同源思路）。
+        /// </summary>
         public int MovesMade {
             [MethodImpl(MethodImplOptions.AggressiveOptimization)]
             get {
@@ -1518,7 +1552,9 @@ namespace Klondike.Entities {
             }
         }
 
-        /// <summary>可走法序列的文本形式：<c>@</c> 表示 talon 翻动，其后为 Move 的字母对。</summary>
+        /// <summary>
+        /// 可走法序列的文本形式：<c>@</c> 表示 talon 翻动，其后为 Move 的字母对。
+        /// </summary>
         public string MovesMadeOutput {
             get {
                 var sb = new StringBuilder();
@@ -1553,7 +1589,9 @@ namespace Klondike.Entities {
             }
         }
 
-        /// <summary>简易 ASCII 盘面（废牌、回收、七列、库存/废牌列表）。</summary>
+        /// <summary>
+        /// 简易 ASCII 盘面（废牌、回收、七列、库存/废牌列表）。
+        /// </summary>
         public override string ToString() {
             var sb = new StringBuilder();
             var column = (byte)'A';
@@ -1656,7 +1694,9 @@ namespace Klondike.Entities {
 
         #region 闭集哈希表容量（质数）
 
-        /// <summary>为 <see cref="HashMap{T}"/> 取略大于 <paramref name="input"/> 的质数，减少取模冲突。</summary>
+        /// <summary>为
+        /// <see cref="HashMap{T}"/> 取略大于 <paramref name="input"/> 的质数，减少取模冲突。
+        /// </summary>
         private int FindPrime(int input) {
             int maxValue = input << 1;
 
