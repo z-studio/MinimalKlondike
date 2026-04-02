@@ -3,7 +3,7 @@
 namespace Klondike.Entities {
     [StructLayout(LayoutKind.Sequential, Size = 8, Pack = 1)]
     public struct Card {
-        public static readonly Card EMTPY = new() {
+        public static readonly Card Empty = new() {
             ID = 52, 
             ID2 = 0, 
             Suit = ECardSuit.None, 

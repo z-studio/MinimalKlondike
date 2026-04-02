@@ -1279,7 +1279,7 @@ namespace Klondike.Entities {
         }
 
         private void SetupInitial() {
-            Array.Fill(m_State, Card.EMTPY);
+            Array.Fill(m_State, Card.Empty);
             m_InitialPiles[kWastePile].Reset();
 
             for (int i = kFoundationStart; i <= kFoundationEnd; i++) {

@@ -67,7 +67,7 @@ namespace Klondike.Entities {
 
         public Card Bottom {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Size > 0 ? m_Cards[m_Index + Size - 1] : Card.EMTPY;
+            get => Size > 0 ? m_Cards[m_Index + Size - 1] : Card.Empty;
         }
 
         public Card BottomNoCheck {
@@ -77,7 +77,7 @@ namespace Klondike.Entities {
 
         public Card Top {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Size > 0 ? m_Cards[m_Index + First] : Card.EMTPY;
+            get => Size > 0 ? m_Cards[m_Index + First] : Card.Empty;
         }
 
         public Card TopNoCheck {
@@ -88,7 +88,7 @@ namespace Klondike.Entities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Card Up(int size) {
             int index = Size - size - 1;
-            return index >= 0 ? m_Cards[m_Index + index] : Card.EMTPY;
+            return index >= 0 ? m_Cards[m_Index + index] : Card.Empty;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
