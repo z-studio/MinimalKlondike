@@ -24,15 +24,9 @@ namespace Klondike.Entities {
         internal const int kDeckSize = 52;
         internal const int kFoundationSize = 4;
         internal const int kTableauSize = 7;
-
-        /// <summary>
-        /// 4 回收 + 7 列 + 废牌 + 库存。
-        /// </summary>
+        /// <summary>废牌 + 4 回收 + 7 列 + 库存。</summary>
         internal const int kPileSize = kFoundationSize + kTableauSize + 2;
-
-        /// <summary>
-        /// <see cref="TalonHelper"/> 输出数组长度上界（一次枚举 talon 相关出牌候选的最大条数）。
-        /// </summary>
+        /// <summary><see cref="TalonHelper"/> 输出数组长度上界（一次枚举 talon 相关出牌候选的最大条数）。</summary>
         internal const int kTalonSize = 24;
 
         internal const int kWastePile = 0;
@@ -48,53 +42,28 @@ namespace Klondike.Entities {
 
         #endregion
 
-
         #region 字段
 
-        /// <summary>
-        /// 是否枚举「回收位 → 桌面」的走法（默认关闭，极少用于最优解）。
-        /// </summary>
+        /// <summary>是否枚举「回收位 → 桌面」的走法（默认关闭，极少用于最优解）。</summary>
         public bool AllowFoundationToTableau { get; set; }
 
-        /// <summary>
-        /// 所有摞共用的牌数据区（当前局）；<see cref="m_InitialState"/> 为开局快照；<see cref="m_Deck"/> 为发牌顺序源。
-        /// </summary>
+        /// <summary>所有摞共用的牌数据区（当前局）；<see cref="m_InitialState"/> 为开局快照；<see cref="m_Deck"/> 为发牌顺序源。</summary>
         private readonly Card[] m_State, m_InitialState, m_Deck;
-
-        /// <summary>
-        /// 当前摞视图与开局模板（Reset 时从 <see cref="m_InitialPiles"/> 拷回 <see cref="m_Piles"/>）。
-        /// </summary>
+        /// <summary>当前摞视图与开局模板（Reset 时从 <see cref="m_InitialPiles"/> 拷回 <see cref="m_Piles"/>）。</summary>
         private readonly Pile[] m_Piles, m_InitialPiles;
-
-        /// <summary>
-        /// 本局已走过的 <see cref="Move"/> 序列（搜索/回放/<see cref="MovesMade"/>）。
-        /// </summary>
+        /// <summary>本局已走过的 <see cref="Move"/> 序列（搜索/回放/<see cref="MovesMade"/>）。</summary>
         private readonly Move[] m_MovesMade;
-
         private Random m_Random;
-
-        /// <summary>
-        /// 枚举「从 talon 打出」时的候选牌与 <see cref="Move.Count"/> / Flip 编码。
-        /// </summary>
+        /// <summary>枚举「从 talon 打出」时的候选牌与 <see cref="Move.Count"/> / Flip 编码。</summary>
         private readonly TalonHelper m_Helper;
-
-        /// <summary>
-        /// 上一步走法（用于剪枝与状态键中的「最后一步」信息）。
-        /// </summary>
+        /// <summary>上一步走法（用于剪枝与状态键中的「最后一步」信息）。</summary>
         private Move m_LastMove;
-
-        /// <summary>
-        /// 回收区已收张数；黑/红套回收的「当前最小高度+1」用于自动收牌与下界估计。
-        /// </summary>
+        /// <summary>回收区已收张数；黑/红套回收的「当前最小高度+1」用于自动收牌与下界估计。</summary>
         private int m_FoundationCount, m_FoundationMinimumBlack, m_FoundationMinimumRed;
-
-        /// <summary>
-        /// <see cref="m_MovesMade"/> 有效长度；<see cref="m_RoundCount"/> 库存翻完次数；<see cref="m_DrawCount"/> 每次从库存翻几张。
-        /// </summary>
+        /// <summary><see cref="m_MovesMade"/> 有效长度；<see cref="m_RoundCount"/> 库存翻完次数；<see cref="m_DrawCount"/> 每次从库存翻几张。</summary>
         private int m_MovesTotal, m_RoundCount, m_DrawCount;
 
         #endregion
-
 
         public int CardsInFoundation {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -233,10 +202,12 @@ namespace Klondike.Entities {
             }
         }
 
-
         #region 求解（随机 / A*）
 
-        /// <summary>蒙特卡洛式随机走步，记录最优回收张数或完整解；用于快速试探，不保证最优。</summary>
+        /// <summary>
+        /// 重复多局「随机推演」：每局从开局起，每步在 <see cref="GetAvailableMoves"/> 里随机选一着，直到无路可走或超出步数/轮数；
+        /// 跨局保留回收区张数最多的一局；若出现过完整解，则在解中保留步数较少者。并非系统搜索，也与常说的蒙特卡洛树搜索（MCTS）不同，不保证最优或必能找到解。
+        /// </summary>
         public SolveDetail SolveRandom(int randomGamesToTry = 40000, int maxMoves = 250, int maxRounds = 20) {
             var moves = new List<Move>(64);
             var bestCount = 0;
@@ -344,7 +315,7 @@ namespace Klondike.Entities {
                 }
             }
 
-            //Add current state
+            // Add current state
             open.Enqueue(new MoveIndex() { Index = nodeCount - 1, Estimate = Estimate });
 
             int bestSolutionMoveCount = maxMoves + 1;
@@ -354,7 +325,7 @@ namespace Klondike.Entities {
             timer.Start();
 
             while (open.Count > 0 && nodeCount < maxNodes) {
-                //Get next state to evaluate
+                // Get next state to evaluate
                 MoveIndex node = open.Dequeue();
 
                 Estimate estimate = node.Estimate;
