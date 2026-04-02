@@ -1,99 +1,119 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+
 namespace Klondike.Entities {
     public unsafe struct Pile : IComparable<Pile> {
         public int Size;
         public int First;
-        private readonly int Index;
-        private readonly Card[] Cards;
+        
+        private readonly int m_Index;
+        private readonly Card[] m_Cards;
 
         public Pile(Card[] cards, int index) {
-            Cards = cards;
-            Index = index;
+            m_Cards = cards;
+            m_Index = index;
             Size = 0;
             First = -1;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Reset() {
             Size = 0;
             First = -1;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Flip(int count = 1) {
             First = Size - count;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(Card card) {
-            Cards[Index + Size++] = card;
+            m_Cards[m_Index + Size++] = card;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Remove(ref Pile to) {
-            to.Add(Cards[Index + --Size]);
+            to.Add(m_Cards[m_Index + --Size]);
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Remove(ref Pile to, int count) {
-            int fromIndex = Index + Size - count;
-            int toIndex = to.Index + to.Size;
-            Span<Card> source = new Span<Card>(Cards, fromIndex, count);
-            Span<Card> destination = new Span<Card>(Cards, toIndex, count);
+            int fromIndex = m_Index + Size - count;
+            int toIndex = to.m_Index + to.Size;
+            var source = new Span<Card>(m_Cards, fromIndex, count);
+            var destination = new Span<Card>(m_Cards, toIndex, count);
             source.CopyTo(destination);
             Size -= count;
             to.Size += count;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveFlip(ref Pile to, int count) {
-            int fromIndex = Index + Size - count;
-            int toIndex = to.Index + to.Size;
-            Span<Card> source = new Span<Card>(Cards, fromIndex, count);
-            Span<Card> destination = new Span<Card>(Cards, toIndex, count);
+            int fromIndex = m_Index + Size - count;
+            int toIndex = to.m_Index + to.Size;
+            var source = new Span<Card>(m_Cards, fromIndex, count);
+            var destination = new Span<Card>(m_Cards, toIndex, count);
             source.CopyTo(destination);
             destination.Reverse();
             Size -= count;
             to.Size += count;
         }
+
         public Card this[int index] {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return Cards[Index + index]; }
+            get => m_Cards[m_Index + index];
         }
+
         public Card Bottom {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return Size > 0 ? Cards[Index + Size - 1] : Card.EMTPY; }
+            get => Size > 0 ? m_Cards[m_Index + Size - 1] : Card.EMTPY;
         }
+
         public Card BottomNoCheck {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return Cards[Index + Size - 1]; }
+            get => m_Cards[m_Index + Size - 1];
         }
+
         public Card Top {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return Size > 0 ? Cards[Index + First] : Card.EMTPY; }
+            get => Size > 0 ? m_Cards[m_Index + First] : Card.EMTPY;
         }
+
         public Card TopNoCheck {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return Cards[Index + First]; }
+            get => m_Cards[m_Index + First];
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Card Up(int size) {
             int index = Size - size - 1;
-            return index >= 0 ? Cards[Index + index] : Card.EMTPY;
+            return index >= 0 ? m_Cards[m_Index + index] : Card.EMTPY;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Card UpNoCheck(int size) {
-            return Cards[Index + Size - size - 1];
+            return m_Cards[m_Index + Size - size - 1];
         }
+
         public int UpSize {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return Size - First; }
+            get => Size - First;
         }
+
         public override string ToString() {
-            return $"Max: {Cards.Length} Size: {Size} First: {First}";
+            return $"Max: {m_Cards.Length} Size: {Size} First: {First}";
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(Pile other) {
             int upCompare = other.UpSize.CompareTo(UpSize);
+
             if (upCompare != 0) {
                 return upCompare;
             }
-            return other.Index.CompareTo(Index);
+
+            return other.m_Index.CompareTo(m_Index);
         }
     }
 }
