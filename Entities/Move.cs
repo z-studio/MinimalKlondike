@@ -47,7 +47,7 @@ namespace Klondike.Entities {
 
         public override string ToString() {
             return string.Concat(
-                From == Board.WastePile && Count != 0 ? Math.Abs(Count).ToString() : string.Empty,
+                From == Board.kWastePile && Count != 0 ? Math.Abs(Count).ToString() : string.Empty,
                 Display
             );
         }
