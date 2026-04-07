@@ -18,14 +18,16 @@ namespace Klondike.Entities {
     /// <para><b>搜索</b>：<see cref="Solve"/> 用 <see cref="Heap{T}"/> + <see cref="HashMap{T}"/>（键为 <see cref="State"/>），
     /// <see cref="SolveFast"/> 用更短的 <see cref="StateFast"/>；路径用 <see cref="MoveNode"/> 链存在 <c>nodeStorage</c> 中。</para>
     /// </remarks>
-    public unsafe sealed class Board {
+    public unsafe sealed partial class Board {
         #region 常量与牌堆下标
 
         internal const int kDeckSize = 52;
         internal const int kFoundationSize = 4;
         internal const int kTableauSize = 7;
+
         /// <summary>废牌 + 4 回收 + 7 列 + 库存。</summary>
         internal const int kPileSize = kFoundationSize + kTableauSize + 2;
+
         /// <summary><see cref="TalonHelper"/> 输出数组长度上界（一次枚举 talon 相关出牌候选的最大条数）。</summary>
         internal const int kTalonSize = 24;
 
@@ -42,28 +44,53 @@ namespace Klondike.Entities {
 
         #endregion
 
+
         #region 字段
 
-        /// <summary>是否枚举「回收位 → 桌面」的走法（默认关闭，极少用于最优解）。</summary>
+        /// <summary>
+        /// 是否枚举「回收位 → 桌面」的走法（默认关闭，极少用于最优解）。
+        /// </summary>
         public bool AllowFoundationToTableau { get; set; }
 
-        /// <summary>所有摞共用的牌数据区（当前局）；<see cref="m_InitialState"/> 为开局快照；<see cref="m_Deck"/> 为发牌顺序源。</summary>
+        /// <summary>
+        /// 所有摞共用的牌数据区（当前局）；<see cref="m_InitialState"/> 为开局快照；<see cref="m_Deck"/> 为发牌顺序源。
+        /// </summary>
         private readonly Card[] m_State, m_InitialState, m_Deck;
-        /// <summary>当前摞视图与开局模板（Reset 时从 <see cref="m_InitialPiles"/> 拷回 <see cref="m_Piles"/>）。</summary>
+
+        /// <summary>
+        /// 当前摞视图与开局模板（Reset 时从 <see cref="m_InitialPiles"/> 拷回 <see cref="m_Piles"/>）。
+        /// </summary>
         private readonly Pile[] m_Piles, m_InitialPiles;
-        /// <summary>本局已走过的 <see cref="Move"/> 序列（搜索/回放/<see cref="MovesMade"/>）。</summary>
+
+        /// <summary>
+        /// 本局已走过的 <see cref="Move"/> 序列（搜索/回放/<see cref="MovesMade"/>）。
+        /// </summary>
         private readonly Move[] m_MovesMade;
+
         private Random m_Random;
-        /// <summary>枚举「从 talon 打出」时的候选牌与 <see cref="Move.Count"/> / Flip 编码。</summary>
+
+        /// <summary>
+        /// 枚举「从 talon 打出」时的候选牌与 <see cref="Move.Count"/> / Flip 编码。
+        /// </summary>
         private readonly TalonHelper m_Helper;
-        /// <summary>上一步走法（用于剪枝与状态键中的「最后一步」信息）。</summary>
+
+        /// <summary>
+        /// 上一步走法（用于剪枝与状态键中的「最后一步」信息）。
+        /// </summary>
         private Move m_LastMove;
-        /// <summary>回收区已收张数；黑/红套回收的「当前最小高度+1」用于自动收牌与下界估计。</summary>
+
+        /// <summary>
+        /// 回收区已收张数；黑/红套回收的「当前最小高度+1」用于自动收牌与下界估计。
+        /// </summary>
         private int m_FoundationCount, m_FoundationMinimumBlack, m_FoundationMinimumRed;
-        /// <summary><see cref="m_MovesMade"/> 有效长度；<see cref="m_RoundCount"/> 库存翻完次数；<see cref="m_DrawCount"/> 每次从库存翻几张。</summary>
+
+        /// <summary>
+        /// <see cref="m_MovesMade"/> 有效长度；<see cref="m_RoundCount"/> 库存翻完次数；<see cref="m_DrawCount"/> 每次从库存翻几张。
+        /// </summary>
         private int m_MovesTotal, m_RoundCount, m_DrawCount;
 
         #endregion
+
 
         public int CardsInFoundation {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -201,6 +228,7 @@ namespace Klondike.Entities {
                 draws = 0;
             }
         }
+
 
         #region 求解（随机 / A*）
 

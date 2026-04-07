@@ -1,0 +1,61 @@
+namespace Klondike.LevelGeneration {
+    /// <summary>
+    /// 开局快照（在 <see cref="Klondike.Entities.Board.Solve"/> 之前计算）。
+    /// </summary>
+    public struct DealStaticMetrics {
+        /// <summary>
+        /// 盖牌里 A/2/K：每张「上方还有几张盖牌」的最大值，即 max(first - j - 1)
+        /// </summary>
+        public int MaxKeyCardCoverCount;
+
+        /// <summary>
+        /// 库存中 A 的张数。
+        /// </summary>
+        public int StockAceCount;
+
+        /// <summary>
+        /// 七列明牌区（含已翻开顶牌）中 A 的张数。
+        /// </summary>
+        public int TableauVisibleAceCount;
+
+        /// <summary>
+        /// 开局时 <see cref="Klondike.Entities.Board.GetAvailableMoves"/> 中，源摞为桌面列的走法条数。
+        /// </summary>
+        public int ImmediatelyMovableFromTableauCount;
+
+        /// <summary>
+        /// 七列盖牌合计：每列盖牌段内，长度为 3 的滑动窗里「连续 3 张同色（全红或全黑）」出现几次（可重叠）
+        /// </summary>
+        public int FaceDownTripleSameColorWindowCount;
+        
+        /// <summary>
+        /// 同上，长度为 4 的滑动窗、连续 4 张同色
+        /// </summary>
+        public int FaceDownQuadrupleSameColorWindowCount;
+    }
+
+    /// <summary>
+    /// 沿求解序列重放时得到的动态指标（每步为一次 <see cref="Klondike.Entities.Board.MakeMove"/>）。
+    /// </summary>
+    public struct DealReplayMetrics {
+        /// <summary>
+        /// 首次出现「桌面盖牌张数减少」（有盖牌由暗变明）时的累计步数（牌桌步数+牌库步数，含本步）。未发生则为 -1。
+        /// </summary>
+        public int FirstRevealStepTotal;
+
+        /// <summary>
+        /// 同上时刻已执行的牌桌相关步数（非废牌源）。
+        /// </summary>
+        public int FirstRevealTableauSteps;
+
+        /// <summary>
+        /// 同上时刻已执行的牌库/废牌源步数。
+        /// </summary>
+        public int FirstRevealTalonSteps;
+
+        /// <summary>
+        /// 七列均无盖牌（<see cref="Klondike.Entities.Pile.First"/>==0 或列空）时的累计步数；未发生则为 -1。
+        /// </summary>
+        public int AllTableauFaceUpStepTotal;
+    }
+}
