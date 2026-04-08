@@ -11,9 +11,7 @@ namespace Klondike.LevelGeneration {
     public sealed class LevelGenerationConfig {
         public int? Attempts { get; set; }
 
-        /// <summary>输出路径（与 <c>outPath</c> 二选一）。</summary>
-        public string Out { get; set; }
-
+        /// <summary>输出路径。</summary>
         public string OutPath { get; set; }
 
         public int? DrawCount { get; set; }
@@ -51,7 +49,7 @@ namespace Klondike.LevelGeneration {
                 .IgnoreUnmatchedProperties()
                 .Build();
 
-            LevelGenerationConfig cfg = deserializer.Deserialize<LevelGenerationConfig>(text);
+            var cfg = deserializer.Deserialize<LevelGenerationConfig>(text);
 
             if (cfg == null) {
                 throw new InvalidOperationException($"无法解析 YAML（空文档或根节点缺失）：{path}");

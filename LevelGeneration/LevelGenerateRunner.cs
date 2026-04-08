@@ -24,7 +24,7 @@ namespace Klondike.LevelGeneration {
                 string path = args[++i];
 
                 try {
-                    LevelGenerationConfig cfg = LevelGenerationConfig.Load(path);
+                    var cfg = LevelGenerationConfig.Load(path);
                     p.ApplyYaml(cfg);
                     Console.WriteLine($"已载入关卡生成配置: {Path.GetFullPath(path)}");
                 } catch (Exception ex) {
@@ -64,11 +64,12 @@ namespace Klondike.LevelGeneration {
                     p.MaxMoves = mm;
                 } else if (a == "--max-rounds" && i + 1 < args.Length && int.TryParse(args[++i], out int mr)) {
                     p.MaxRounds = mr;
-                } else if ((a == "--seed" || a == "--levelgen-spec-seed") && i + 1 < args.Length
+                } else if (a == "--seed"
+                           && i + 1 < args.Length
                            && int.TryParse(args[++i], out int baseSeed)) {
                     p.LevelGenSpecSeed = baseSeed;
 
-                // —— 筛选（下一参数均为 "L,R"，写入 p.Filters，最终由 LevelGenerationFilters.Passes 判定）——
+                    // —— 筛选（下一参数均为 "L,R"，写入 p.Filters，最终由 LevelGenerationFilters.Passes 判定）——
                 } else if (a == "--filter-key-depth"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
@@ -132,8 +133,9 @@ namespace Klondike.LevelGeneration {
 
             for (var t = 0; t < p.Attempts; t++) {
                 tried++;
-                var board = new Board(p.DrawCount);
-                board.AllowFoundationToTableau = true;
+                var board = new Board(p.DrawCount) {
+                    AllowFoundationToTableau = true
+                };
 
                 if (p.CardWeights != null) {
                     board.ShuffleCardWeight(p.LevelGenSpecSeed + t, p.CardWeights);
@@ -229,7 +231,6 @@ namespace Klondike.LevelGeneration {
                 --max-moves #         传入 Board.Solve（默认 250）
                 --max-rounds #        传入 Board.Solve（默认 15）
                 --seed N              仅 ShuffleCardWeight：第 t 次尝试种子为 N+t（同配置里 levelGenSpecSeed）
-                --levelgen-spec-seed N  与 --seed 相同（兼容旧参数名）
 
                 发牌：始终使用 Board.ShuffleCardWeight；52 维权重在配置文件的 cardWeights 中设置（省略则全 1）。
 
@@ -250,7 +251,5 @@ namespace Klondike.LevelGeneration {
                 """
             );
         }
-
-        public static void PrintHelpOnly() => PrintHelp();
     }
 }

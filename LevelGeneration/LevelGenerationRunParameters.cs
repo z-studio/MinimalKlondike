@@ -5,6 +5,7 @@ namespace Klondike.LevelGeneration {
     internal sealed class LevelGenerationRunParameters {
         /// <summary>入库前筛选；由 YAML <c>filters</c> 与命令行 <c>--filter-*</c> 合并写入。</summary>
         public LevelGenerationFilters Filters = new();
+
         public int Attempts = 1000;
         public string OutPath = "qualified_deals.txt";
         public int DrawCount = 1;
@@ -31,10 +32,8 @@ namespace Klondike.LevelGeneration {
                 Attempts = System.Math.Max(1, a);
             }
 
-            string outP = cfg.OutPath ?? cfg.Out;
-
-            if (!string.IsNullOrWhiteSpace(outP)) {
-                OutPath = outP.Trim();
+            if (!string.IsNullOrWhiteSpace(cfg.OutPath)) {
+                OutPath = cfg.OutPath.Trim();
             }
 
             if (cfg.DrawCount is { } d) {
@@ -74,12 +73,16 @@ namespace Klondike.LevelGeneration {
                 ApplyFilterString(cfg.Filters.StockAceCount, ref Filters.StockAceCount);
                 ApplyFilterString(cfg.Filters.TableauVisibleAceCount, ref Filters.TableauVisibleAceCount);
                 ApplyFilterString(cfg.Filters.ImmediatelyMovableFromTableau, ref Filters.ImmediatelyMovableFromTableau);
+
                 ApplyFilterString(
                     cfg.Filters.FaceDownTripleSameColorWindowCount,
-                    ref Filters.FaceDownTripleSameColorWindowCount);
+                    ref Filters.FaceDownTripleSameColorWindowCount
+                );
+
                 ApplyFilterString(
                     cfg.Filters.FaceDownQuadrupleSameColorWindowCount,
-                    ref Filters.FaceDownQuadrupleSameColorWindowCount);
+                    ref Filters.FaceDownQuadrupleSameColorWindowCount
+                );
             }
         }
 
