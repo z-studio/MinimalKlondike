@@ -114,7 +114,7 @@ namespace Klondike {
                 board.PlayMoves(movesMade);
             }
 
-            board.AllowFoundationToTableau = false;
+            board.AllowFoundationToTableau = true;
             return SolveGame(board, maxStates);
         }
 
@@ -131,7 +131,7 @@ namespace Klondike {
                 board.PlayMoves(movesMade);
             }
 
-            board.AllowFoundationToTableau = false;
+            board.AllowFoundationToTableau = true;
             return SolveGame(board, maxStates);
         }
 

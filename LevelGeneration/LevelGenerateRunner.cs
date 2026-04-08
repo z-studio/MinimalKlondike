@@ -133,7 +133,7 @@ namespace Klondike.LevelGeneration {
             for (var t = 0; t < p.Attempts; t++) {
                 tried++;
                 var board = new Board(p.DrawCount);
-                board.AllowFoundationToTableau = false;
+                board.AllowFoundationToTableau = true;
 
                 if (p.CardWeights != null) {
                     board.ShuffleCardWeight(p.LevelGenSpecSeed + t, p.CardWeights);
