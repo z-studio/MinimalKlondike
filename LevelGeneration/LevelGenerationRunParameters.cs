@@ -10,7 +10,6 @@ namespace Klondike.LevelGeneration {
         public string OutPath = "qualified_deals.txt";
         public int DrawCount = 1;
         public int MaxStates = 50_000_000;
-        public int MaxMoves = 250;
         public int MaxRounds = 15;
         public int LevelGenSpecSeed;
 
@@ -42,10 +41,6 @@ namespace Klondike.LevelGeneration {
 
             if (cfg.MaxStates is { } s) {
                 MaxStates = s;
-            }
-
-            if (cfg.MaxMoves is { } mm) {
-                MaxMoves = mm;
             }
 
             if (cfg.MaxRounds is { } mr) {

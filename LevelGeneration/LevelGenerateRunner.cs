@@ -60,8 +60,6 @@ namespace Klondike.LevelGeneration {
                     p.DrawCount = d;
                 } else if (a == "-S" && i + 1 < args.Length && int.TryParse(args[++i], out int s)) {
                     p.MaxStates = s;
-                } else if (a == "--max-moves" && i + 1 < args.Length && int.TryParse(args[++i], out int mm)) {
-                    p.MaxMoves = mm;
                 } else if (a == "--max-rounds" && i + 1 < args.Length && int.TryParse(args[++i], out int mr)) {
                     p.MaxRounds = mr;
                 } else if (a == "--seed"
@@ -146,9 +144,14 @@ namespace Klondike.LevelGeneration {
                 DealStaticMetrics stat = DealAnalyzer.ComputeStatic(board);
                 string dealLine = board.GetDeal(false);
 
-                SolveDetail detail = board.Solve(p.MaxMoves, p.MaxRounds, p.MaxStates);
+                var maxMoves = p.Filters.SolveMovesMade.Active ? p.Filters.SolveMovesMade.RightInclusive : 250;
+                SolveDetail detail = board.Solve(maxMoves, p.MaxRounds, p.MaxStates);
 
                 if (detail.Result != ESolveResult.Solved && detail.Result != ESolveResult.Minimal) {
+                    continue;
+                }
+
+                if (p.Filters.SolveMovesMade.Active && detail.Moves <= p.Filters.SolveMovesMade.LeftOpen) {
                     continue;
                 }
 

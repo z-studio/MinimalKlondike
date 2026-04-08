@@ -17,8 +17,7 @@ namespace Klondike.LevelGeneration {
         public int? DrawCount { get; set; }
 
         public int? MaxStates { get; set; }
-
-        public int? MaxMoves { get; set; }
+        
 
         public int? MaxRounds { get; set; }
 

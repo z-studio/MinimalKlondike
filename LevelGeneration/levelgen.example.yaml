@@ -14,8 +14,7 @@ drawCount: 1
 # 单局求解最大探索状态数
 maxStates: 50000000
 
-# maxMoves、maxRounds：传入 Board.Solve
-maxMoves: 250
+# 牌库重置最大次数
 maxRounds: 15
 
 # ShuffleCardWeight 基准种子；第 t 局用 levelGenSpecSeed + t
@@ -33,10 +32,10 @@ cardWeights: [
 # 筛选；值为 "L,R" 字符串，左开右闭 (L,R]；L==R 表示等于；不写则不筛
 filters:
   # 关键牌（盖牌中 A/2/K）上方盖牌张数（全局最大）
-  keyDepthMax: "0,6"
+  # keyDepthMax: "0,6"
   # 首次由暗翻明时牌桌步数+牌库步数之和
   # firstRevealTotalSteps: "0,50"
-  # 通关解的 MovesMade
+  # 通关解的步数
   solveMovesMade: "10,200"
   # 七列盖牌全翻开时的步数
   # allTableauFaceUpSteps: "0,9999"
