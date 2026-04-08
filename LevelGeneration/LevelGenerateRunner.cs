@@ -19,6 +19,8 @@ namespace Klondike.LevelGeneration {
             int maxMoves = 250;
             int maxRounds = 15;
             bool useGreenFelt = false;
+            bool useLevelGenSpec = false;
+            int levelGenSpecSeed = 0;
             var random = new Random();
             IntRangeFilter parsed;
 
@@ -39,6 +41,9 @@ namespace Klondike.LevelGeneration {
                     maxRounds = mr;
                 } else if (a == "--green-felt") {
                     useGreenFelt = true;
+                } else if (a == "--levelgen-spec-seed" && i + 1 < args.Length && int.TryParse(args[++i], out int lgs)) {
+                    useLevelGenSpec = true;
+                    levelGenSpecSeed = lgs;
                 } else if (a == "--filter-key-depth"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
@@ -102,7 +107,9 @@ namespace Klondike.LevelGeneration {
                 var board = new Board(drawCount);
                 board.AllowFoundationToTableau = false;
 
-                if (useGreenFelt) {
+                if (useLevelGenSpec) {
+                    board.ShuffleCardWeight(levelGenSpecSeed + t);
+                } else if (useGreenFelt) {
                     board.ShuffleGreenFelt(unchecked((uint)random.Next()));
                 } else {
                     board.Shuffle(random.Next());
@@ -195,6 +202,7 @@ namespace Klondike.LevelGeneration {
                 --max-moves #         传入 Board.Solve（默认 250）
                 --max-rounds #        传入 Board.Solve（默认 15）
                 --green-felt          使用 ShuffleGreenFelt 随机（否则 Shuffle）
+                --levelgen-spec-seed N  使用 LevelGeneration 加权流程（均匀权重）；第 t 次尝试种子为 N+t。自定义 52 维权重请直接调用 Board.ShuffleCardWeight
 
                 筛选（左开右闭 (L,R]，L==R 表示等于 L；未指定则不筛该项）：
                 --filter-key-depth L,R           关键牌（盖牌中 A/2/K）上方盖牌张数（全局最大）

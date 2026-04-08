@@ -140,7 +140,7 @@ namespace Klondike {
         }
 
         private static SolveDetail SolveGame(Board board, int maxStates) {
-            Console.WriteLine($"Deal: {board.GetDeal()}");
+            Console.WriteLine($"Deal: {board.GetDeal(false)}");
             Console.WriteLine();
             Console.WriteLine(board);
 
