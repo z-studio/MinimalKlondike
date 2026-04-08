@@ -69,7 +69,7 @@ namespace Klondike.LevelGeneration {
                            && int.TryParse(args[++i], out int baseSeed)) {
                     p.LevelGenSpecSeed = baseSeed;
 
-                    // —— 筛选（下一参数均为 "L,R"，写入 p.Filters，最终由 LevelGenerationFilters.Passes 判定）——
+                // —— 筛选（下一参数均为 "L,R"，写入 p.Filters，最终由 LevelGenerationFilters.Passes 判定）——
                 } else if (a == "--filter-key-depth"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
@@ -160,9 +160,10 @@ namespace Klondike.LevelGeneration {
 
                 board.Reset();
                 DealReplayMetrics replay = DealAnalyzer.ComputeReplay(board, solution);
-                int solveMovesMetric = board.MovesMade;
+                // 与「解的操作步数」一致：通关解里 Move 的条数（同 RecordedMoves / solution.Length），非 Board.MovesMade 的折算点击数
+                int solutionMoveCount = solution.Length;
 
-                if (!p.Filters.Passes(stat, replay, solveMovesMetric)) {
+                if (!p.Filters.Passes(stat, replay, solutionMoveCount)) {
                     continue;
                 }
 
@@ -237,7 +238,7 @@ namespace Klondike.LevelGeneration {
                 筛选（左开右闭 (L,R]，L==R 表示等于 L；未指定则不筛该项）：
                 --filter-key-depth L,R           关键牌（盖牌中 A/2/K）上方盖牌张数（全局最大）
                 --filter-first-reveal L,R        首次由暗变明时，牌桌步数+牌库步数之和
-                --filter-solve-moves L,R         通关序列的 MovesMade（与引擎一致）
+                --filter-solve-moves L,R         通关解序列的 Move 条数（与 Board.RecordedMoves 长度一致）
                 --filter-all-revealed L,R        七列盖牌全翻开时的步数（同上）
                 --filter-stock-aces L,R          库存 A 的张数
                 --filter-visible-aces L,R        桌面明牌区 A 的张数

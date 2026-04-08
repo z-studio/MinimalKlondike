@@ -70,7 +70,7 @@ namespace Klondike.LevelGeneration {
         /// <summary>首次由暗翻明时，牌桌步数与牌库步数之和；同 <c>--filter-first-reveal</c>。</summary>
         public string FirstRevealTotalSteps { get; set; }
 
-        /// <summary>通关解的 MovesMade；同 <c>--filter-solve-moves</c>。</summary>
+        /// <summary>通关解中 Move 的条数（与 RecordedMoves 长度一致）；同 <c>--filter-solve-moves</c>。</summary>
         public string SolveMovesMade { get; set; }
 
         /// <summary>七列盖牌全部翻开时的累计步数；同 <c>--filter-all-revealed</c>。</summary>

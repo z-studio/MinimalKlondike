@@ -10,7 +10,7 @@ namespace Klondike.LevelGeneration {
         /// <summary>对应 <c>firstRevealTotalSteps</c> / <c>--filter-first-reveal</c>；指标见 <see cref="DealReplayMetrics.FirstRevealStepTotal"/>（未翻明过盖牌时为 -1，若筛激活则不合格）。</summary>
         public IntRangeFilter FirstRevealTotalSteps;
 
-        /// <summary>对应 <c>solveMovesMade</c> / <c>--filter-solve-moves</c>；与 <see cref="Passes"/> 的第三参（求解结束后引擎统计的通关步数）比较。</summary>
+        /// <summary>对应 <c>solveMovesMade</c> / <c>--filter-solve-moves</c>；比较的是通关解中 <see cref="Klondike.Entities.Move"/> 的条数（与 <see cref="Klondike.Entities.Board.RecordedMoves"/> 长度一致），非 <c>Board.MovesMade</c> 属性。</summary>
         public IntRangeFilter SolveMovesMade;
 
         /// <summary>对应 <c>allTableauFaceUpSteps</c> / <c>--filter-all-revealed</c>；指标见 <see cref="DealReplayMetrics.AllTableauFaceUpStepTotal"/>（七列从未全明则为 -1，若筛激活则不合格）。</summary>
@@ -32,9 +32,9 @@ namespace Klondike.LevelGeneration {
         public IntRangeFilter FaceDownQuadrupleSameColorWindowCount;
 
         /// <summary>
-        /// 静态指标 <paramref name="s"/> 与沿通关解重放得到的 <paramref name="r"/>、以及通关步数 <paramref name="solveMovesMade"/> 是否同时满足所有已激活筛选。
+        /// 静态指标 <paramref name="s"/>、沿通关解重放得到的 <paramref name="r"/>、以及解序列 Move 条数 <paramref name="solutionMoveCount"/> 是否同时满足所有已激活筛选。
         /// </summary>
-        public bool Passes(DealStaticMetrics s, DealReplayMetrics r, int solveMovesMade) {
+        public bool Passes(DealStaticMetrics s, DealReplayMetrics r, int solutionMoveCount) {
             // KeyDepthMax ↔ DealStaticMetrics.MaxKeyCardCoverCount
             if (!KeyDepthMax.Matches(s.MaxKeyCardCoverCount)) {
                 return false;
@@ -49,8 +49,8 @@ namespace Klondike.LevelGeneration {
                 return false;
             }
 
-            // SolveMovesMade ↔ 求解结束后的通关步数
-            if (!SolveMovesMade.Matches(solveMovesMade)) {
+            // SolveMovesMade ↔ 通关解的 Move 条数（RecordedMoves 长度）
+            if (!SolveMovesMade.Matches(solutionMoveCount)) {
                 return false;
             }
 
