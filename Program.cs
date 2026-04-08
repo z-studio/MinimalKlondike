@@ -13,8 +13,6 @@ namespace Klondike {
                 return;
             }
 
-            args = ExpandArgsFromConfigIfPresent(args);
-
             if (TryHandleLevelGenerationArgs(args)) {
                 return;
             }
@@ -82,10 +80,8 @@ namespace Klondike {
                 Minimal Klondike
                 Klondike.exe [Options] [CardSet]
 
-                分发他人使用时：将 {kSidecarLaunchArgsFileName} 放在与本程序同一目录；用户直接双击或运行程序且不带参数时，会自动读取该文件（UTF-8）作为命令行参数。
-                若同目录没有该文件、或文件解析后为空，则显示本帮助。
-                仍可在命令行直接写参数（不会读取 {kSidecarLaunchArgsFileName}）；仅输入 --help / -h / -? / /? 可查看本帮助且不执行 {kSidecarLaunchArgsFileName}。
-                参数文件语法：行内 # 仅在双引号外为注释；含空格的值用双引号。
+                无参数时显示本帮助。仅输入 --help / -h / -? / /? 同样显示本帮助。
+                关卡批量生成：首参数为 --generate，配置使用 YAML（--config xxx.yaml），详见下方说明。
 
                 DrawCount (Default=1)
                 -D #
