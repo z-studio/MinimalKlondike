@@ -11,87 +11,110 @@ namespace Klondike.LevelGeneration {
     /// </summary>
     public static class LevelGenerateRunner {
         public static void Run(string[] args, int startIndex) {
-            var filters = new LevelGenerationFilters();
-            int attempts = 1000;
-            string outPath = "qualified_deals.txt";
-            int drawCount = 1;
-            int maxStates = 50_000_000;
-            int maxMoves = 250;
-            int maxRounds = 15;
-            bool useGreenFelt = false;
-            bool useLevelGenSpec = false;
-            int levelGenSpecSeed = 0;
-            var random = new Random();
+            var p = LevelGenerationRunParameters.CreateDefault();
+            var i = startIndex;
+
+            while (i < args.Length && args[i] == "--config") {
+                if (i + 1 >= args.Length) {
+                    Console.WriteLine("--config 需要指定 YAML 配置文件路径（.yaml 或 .yml）。");
+                    PrintHelp();
+                    return;
+                }
+
+                string path = args[++i];
+
+                try {
+                    LevelGenerationConfig cfg = LevelGenerationConfig.Load(path);
+                    p.ApplyYaml(cfg);
+                    Console.WriteLine($"已载入关卡生成配置: {Path.GetFullPath(path)}");
+                } catch (Exception ex) {
+                    Console.WriteLine($"读取配置失败: {path}");
+                    Console.WriteLine(ex.Message);
+                    return;
+                }
+
+                i++;
+            }
+
+            if (!TryParseCliArgs(args, i, p)) {
+                return;
+            }
+
+            Execute(p);
+        }
+
+        static bool TryParseCliArgs(string[] args, int startIndex, LevelGenerationRunParameters p) {
             IntRangeFilter parsed;
 
             for (var i = startIndex; i < args.Length; i++) {
                 string a = args[i];
 
                 if (a == "--attempts" && i + 1 < args.Length && int.TryParse(args[++i], out int n)) {
-                    attempts = Math.Max(1, n);
+                    p.Attempts = Math.Max(1, n);
                 } else if ((a == "--out" || a == "-O") && i + 1 < args.Length) {
-                    outPath = args[++i];
+                    p.OutPath = args[++i];
                 } else if (a == "-D" && i + 1 < args.Length && int.TryParse(args[++i], out int d)) {
-                    drawCount = d;
+                    p.DrawCount = d;
                 } else if (a == "-S" && i + 1 < args.Length && int.TryParse(args[++i], out int s)) {
-                    maxStates = s;
+                    p.MaxStates = s;
                 } else if (a == "--max-moves" && i + 1 < args.Length && int.TryParse(args[++i], out int mm)) {
-                    maxMoves = mm;
+                    p.MaxMoves = mm;
                 } else if (a == "--max-rounds" && i + 1 < args.Length && int.TryParse(args[++i], out int mr)) {
-                    maxRounds = mr;
-                } else if (a == "--green-felt") {
-                    useGreenFelt = true;
-                } else if (a == "--levelgen-spec-seed" && i + 1 < args.Length && int.TryParse(args[++i], out int lgs)) {
-                    useLevelGenSpec = true;
-                    levelGenSpecSeed = lgs;
+                    p.MaxRounds = mr;
+                } else if ((a == "--seed" || a == "--levelgen-spec-seed") && i + 1 < args.Length
+                           && int.TryParse(args[++i], out int baseSeed)) {
+                    p.LevelGenSpecSeed = baseSeed;
                 } else if (a == "--filter-key-depth"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    filters.KeyDepthMax = parsed;
+                    p.Filters.KeyDepthMax = parsed;
                 } else if (a == "--filter-first-reveal"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    filters.FirstRevealTotalSteps = parsed;
+                    p.Filters.FirstRevealTotalSteps = parsed;
                 } else if (a == "--filter-solve-moves"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    filters.SolveMovesMade = parsed;
+                    p.Filters.SolveMovesMade = parsed;
                 } else if (a == "--filter-all-revealed"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    filters.AllTableauFaceUpSteps = parsed;
+                    p.Filters.AllTableauFaceUpSteps = parsed;
                 } else if (a == "--filter-stock-aces"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    filters.StockAceCount = parsed;
+                    p.Filters.StockAceCount = parsed;
                 } else if (a == "--filter-visible-aces"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    filters.TableauVisibleAceCount = parsed;
+                    p.Filters.TableauVisibleAceCount = parsed;
                 } else if (a == "--filter-movable-tableau"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    filters.ImmediatelyMovableFromTableau = parsed;
+                    p.Filters.ImmediatelyMovableFromTableau = parsed;
                 } else if (a == "--filter-facedown-triple-samecolor"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    filters.FaceDownTripleSameColorWindowCount = parsed;
+                    p.Filters.FaceDownTripleSameColorWindowCount = parsed;
                 } else if (a == "--filter-facedown-quadruple-samecolor"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    filters.FaceDownQuadrupleSameColorWindowCount = parsed;
+                    p.Filters.FaceDownQuadrupleSameColorWindowCount = parsed;
                 } else if (a == "--help" || a == "-h") {
                     PrintHelp();
-                    return;
+                    return false;
                 } else {
                     Console.WriteLine($"未知或无效参数: {a}");
                     PrintHelp();
-                    return;
+                    return false;
                 }
             }
 
-            outPath = ResolveLevelGenerationOutputPath(outPath);
+            return true;
+        }
 
+        static void Execute(LevelGenerationRunParameters p) {
+            string outPath = ResolveLevelGenerationOutputPath(p.OutPath);
             int tried = 0;
             int qualified = 0;
             string dir = Path.GetDirectoryName(outPath);
@@ -102,23 +125,21 @@ namespace Klondike.LevelGeneration {
 
             using var writer = new StreamWriter(outPath, append: true, Encoding.UTF8);
 
-            for (var t = 0; t < attempts; t++) {
+            for (var t = 0; t < p.Attempts; t++) {
                 tried++;
-                var board = new Board(drawCount);
+                var board = new Board(p.DrawCount);
                 board.AllowFoundationToTableau = false;
 
-                if (useLevelGenSpec) {
-                    board.ShuffleCardWeight(levelGenSpecSeed + t);
-                } else if (useGreenFelt) {
-                    board.ShuffleGreenFelt(unchecked((uint)random.Next()));
+                if (p.CardWeights != null) {
+                    board.ShuffleCardWeight(p.LevelGenSpecSeed + t, p.CardWeights);
                 } else {
-                    board.Shuffle(random.Next());
+                    board.ShuffleCardWeight(p.LevelGenSpecSeed + t);
                 }
 
                 DealStaticMetrics stat = DealAnalyzer.ComputeStatic(board);
                 string dealLine = board.GetDeal(false);
 
-                SolveDetail detail = board.Solve(maxMoves, maxRounds, maxStates);
+                SolveDetail detail = board.Solve(p.MaxMoves, p.MaxRounds, p.MaxStates);
 
                 if (detail.Result != ESolveResult.Solved && detail.Result != ESolveResult.Minimal) {
                     continue;
@@ -134,7 +155,7 @@ namespace Klondike.LevelGeneration {
                 DealReplayMetrics replay = DealAnalyzer.ComputeReplay(board, solution);
                 int solveMovesMetric = board.MovesMade;
 
-                if (!filters.Passes(stat, replay, solveMovesMetric)) {
+                if (!p.Filters.Passes(stat, replay, solveMovesMetric)) {
                     continue;
                 }
 
@@ -193,16 +214,19 @@ namespace Klondike.LevelGeneration {
                 """
                 关卡生成模式（首参数须为 --generate）
 
-                Klondike --generate [选项…]
+                Klondike --generate [--config 路径.yaml|.yml]… [选项…]
 
+                --config PATH         读取 YAML 配置（UTF-8，支持 # 注释）；扩展名须为 .yaml 或 .yml；可多次指定，后读入的覆盖同名字段；再之后的命令行选项仍可覆盖
                 --attempts N          尝试局数（默认 1000）
                 --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss-fff 再扩展名；本局结果追加写入该文件（默认 qualified_deals.txt）
                 -D #                  每次翻库存张数
                 -S #                  求解最大结点数
                 --max-moves #         传入 Board.Solve（默认 250）
                 --max-rounds #        传入 Board.Solve（默认 15）
-                --green-felt          使用 ShuffleGreenFelt 随机（否则 Shuffle）
-                --levelgen-spec-seed N  使用 LevelGeneration 加权流程（均匀权重）；第 t 次尝试种子为 N+t。自定义 52 维权重请直接调用 Board.ShuffleCardWeight
+                --seed N              仅 ShuffleCardWeight：第 t 次尝试种子为 N+t（同配置里 levelGenSpecSeed）
+                --levelgen-spec-seed N  与 --seed 相同（兼容旧参数名）
+
+                发牌：始终使用 Board.ShuffleCardWeight；52 维权重在配置文件的 cardWeights 中设置（省略则全 1）。
 
                 筛选（左开右闭 (L,R]，L==R 表示等于 L；未指定则不筛该项）：
                 --filter-key-depth L,R           关键牌（盖牌中 A/2/K）上方盖牌张数（全局最大）
@@ -216,6 +240,8 @@ namespace Klondike.LevelGeneration {
                 --filter-facedown-quadruple-samecolor L,R  同上，连续 4 张同色
 
                 入库条件：仅当 Solve 返回 Solved 或 Minimal 且通过上述筛选。
+
+                示例：LevelGeneration/levelgen.example.yaml
                 """
             );
         }

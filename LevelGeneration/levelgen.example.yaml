@@ -1,0 +1,54 @@
+# 关卡生成配置（YAML，UTF-8）。字段均可选；未写则使用程序默认值或由命令行覆盖。
+# 键名为 camelCase；--config 仅接受扩展名 .yaml / .yml。
+
+# attempts：批量尝试局数（正整数）；默认 1000
+attempts: 500
+
+# out：结果文件路径（与 outPath 二选一）
+# 仅文件名时写到可执行文件目录；每次运行会在主文件名与扩展名之间插入时间戳；多局追加写入
+out: qualified_deals.txt
+# outPath：与 out 同义；C# 合并为 OutPath ?? Out
+# outPath: qualified_deals.txt
+
+# drawCount：每次从库存翻牌张数
+drawCount: 1
+
+# maxStates：单局求解最大探索状态数
+maxStates: 50000000
+
+# maxMoves、maxRounds：传入 Board.Solve
+maxMoves: 250
+maxRounds: 15
+
+# levelGenSpecSeed：ShuffleCardWeight 基准种子；第 t 局用 levelGenSpecSeed + t
+levelGenSpecSeed: 0
+
+# cardWeights：长度须为 52；下标 = Card.ID（0～51：梅花→方块→黑桃→红心 各花色块内 A…K）
+# 权重 < 1 按 1 处理；省略本字段等价于全 1
+cardWeights: [
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+]
+
+# filters：筛选；值为 "L,R" 字符串，左开右闭 (L,R]；L==R 表示等于；不写则不筛
+filters:
+  # keyDepthMax：关键牌（盖牌中 A/2/K）上方盖牌张数（全局最大）
+  keyDepthMax: "0,6"
+  # firstRevealTotalSteps：首次由暗翻明时牌桌步数+牌库步数之和
+  # firstRevealTotalSteps: "0,50"
+  # solveMovesMade：通关解的 MovesMade
+  solveMovesMade: "10,200"
+  # allTableauFaceUpSteps：七列盖牌全翻开时的步数
+  # allTableauFaceUpSteps: "0,9999"
+  # stockAceCount：库存中 A 的张数
+  # stockAceCount: "0,4"
+  # tableauVisibleAceCount：桌面明牌区 A 的张数
+  # tableauVisibleAceCount: "0,4"
+  # immediatelyMovableFromTableau：开局可移动桌面走法条数
+  # immediatelyMovableFromTableau: "0,20"
+  # faceDownTripleSameColorWindowCount：盖牌连续 3 张同色滑动窗个数
+  # faceDownTripleSameColorWindowCount: "0,10"
+  # faceDownQuadrupleSameColorWindowCount：连续 4 张同色
+  # faceDownQuadrupleSameColorWindowCount: "0,5"

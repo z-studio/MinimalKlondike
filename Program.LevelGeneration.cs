@@ -7,7 +7,8 @@ namespace Klondike {
             """
 
             
-            Level generation (Solved/Minimal only, optional filters; see --help):
+            Level generation (Solved/Minimal only; YAML 或命令行，见 --generate --help):
+            Klondike.exe --generate --config LevelGeneration/levelgen.example.yaml
             Klondike.exe --generate --attempts 100 --out wins.txt -D 1
             """;
 
