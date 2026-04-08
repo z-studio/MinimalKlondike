@@ -43,6 +43,9 @@ namespace Klondike.LevelGeneration {
             Execute(p);
         }
 
+        /// <summary>
+        /// 解析关卡生成命令行；筛选类参数值为 <c>L,R</c>，语义见 <see cref="IntRangeFilter"/>，与 YAML <c>filters</c> 字段一一对应。
+        /// </summary>
         static bool TryParseCliArgs(string[] args, int startIndex, LevelGenerationRunParameters p) {
             IntRangeFilter parsed;
 
@@ -64,6 +67,8 @@ namespace Klondike.LevelGeneration {
                 } else if ((a == "--seed" || a == "--levelgen-spec-seed") && i + 1 < args.Length
                            && int.TryParse(args[++i], out int baseSeed)) {
                     p.LevelGenSpecSeed = baseSeed;
+
+                // —— 筛选（下一参数均为 "L,R"，写入 p.Filters，最终由 LevelGenerationFilters.Passes 判定）——
                 } else if (a == "--filter-key-depth"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {

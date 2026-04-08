@@ -3,6 +3,7 @@ using System;
 namespace Klondike.LevelGeneration {
     /// <summary>关卡生成一次运行所需的参数（默认值与 YAML/命令行合并结果）。</summary>
     internal sealed class LevelGenerationRunParameters {
+        /// <summary>入库前筛选；由 YAML <c>filters</c> 与命令行 <c>--filter-*</c> 合并写入。</summary>
         public LevelGenerationFilters Filters = new();
         public int Attempts = 1000;
         public string OutPath = "qualified_deals.txt";
@@ -64,6 +65,7 @@ namespace Klondike.LevelGeneration {
                 CardWeights = (int[])cfg.CardWeights.Clone();
             }
 
+            // filters：字符串 "L,R" → IntRangeFilter，写入运行时 Filters（与 CLI --filter-* 共用同一套字段）
             if (cfg.Filters != null) {
                 ApplyFilterString(cfg.Filters.KeyDepthMax, ref Filters.KeyDepthMax);
                 ApplyFilterString(cfg.Filters.FirstRevealTotalSteps, ref Filters.FirstRevealTotalSteps);
@@ -81,6 +83,7 @@ namespace Klondike.LevelGeneration {
             }
         }
 
+        /// <summary>将 YAML/文本形式的 <c>L,R</c> 解析为 <see cref="IntRangeFilter"/>；空或无效则保持 <paramref name="slot"/> 不变。</summary>
         static void ApplyFilterString(string text, ref IntRangeFilter slot) {
             if (string.IsNullOrWhiteSpace(text)) {
                 return;
