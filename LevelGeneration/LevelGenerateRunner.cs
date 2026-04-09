@@ -195,7 +195,8 @@ namespace Klondike.LevelGeneration {
                 writer.WriteLine(dealLine);
                 writer.WriteLine(keyDeckIndicesLine);
                 // ComputeReplay 已把 solution 完整 MakeMove，MovesMadeOutput 与 Solve 结束时一致（@=翻库，其后为 Move 字母对）
-                writer.WriteLine($"步数: {detail.Moves}  |  执行序列：{board.MovesMadeOutput.TrimEnd()}");
+                writer.WriteLine($"总步数: {detail.Moves}  |  所有盖牌被翻开时走过的步数：{replay.AllTableauFaceUpStepTotal}");
+                writer.WriteLine($"执行序列：{board.MovesMadeOutput.TrimEnd()}");
                 writer.WriteLine();
                 writer.Flush();
             }
