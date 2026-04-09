@@ -7,10 +7,6 @@ namespace Klondike.LevelGeneration {
     /// 在不改动 <see cref="Board"/> 规则的前提下，从当前局面提取关卡特征（须先处于要分析的局面，必要时先 <see cref="Board.Reset"/>）。
     /// </summary>
     public static class DealAnalyzer {
-        private static bool IsKeyRank(Card card) {
-            return card.Rank == ECardRank.Ace || card.Rank == ECardRank.Two || card.Rank == ECardRank.King;
-        }
-
         /// <summary>
         /// 七列盖牌张数之和（各列 <see cref="Pile.First"/>）。仅当某张盖牌因翻牌或移牌变为明牌时，该和才会下降。
         /// </summary>
@@ -51,7 +47,11 @@ namespace Klondike.LevelGeneration {
         /// 开局静态指标；调用时 <paramref name="board"/> 须为已发好牌的初始局面。
         /// </summary>
         public static DealStaticMetrics ComputeStatic(Board board) {
-            var m = new DealStaticMetrics { MaxKeyCardCoverCount = 0 };
+            var aceCovers = new List<int>(8);
+            var twoCovers = new List<int>(8);
+            var kingCovers = new List<int>(8);
+            var tripleWindows = 0;
+            var quadrupleWindows = 0;
 
             for (var col = Board.kTableauStart; col <= Board.kTableauEnd; col++) {
                 Pile pile = board.GetPile(col);
@@ -59,23 +59,27 @@ namespace Klondike.LevelGeneration {
 
                 for (var j = 0; j < first; j++) {
                     Card c = pile[j];
+                    int coverCount = first - j - 1;
 
-                    if (IsKeyRank(c)) {
-                        int coverCount = first - j - 1;
-
-                        if (coverCount > m.MaxKeyCardCoverCount) {
-                            m.MaxKeyCardCoverCount = coverCount;
-                        }
+                    if (c.Rank == ECardRank.Ace) {
+                        aceCovers.Add(coverCount);
+                    } else if (c.Rank == ECardRank.Two) {
+                        twoCovers.Add(coverCount);
+                    } else if (c.Rank == ECardRank.King) {
+                        kingCovers.Add(coverCount);
                     }
                 }
 
-                CountFaceDownSameColorWindows(
-                    pile,
-                    first,
-                    ref m.FaceDownTripleSameColorWindowCount,
-                    ref m.FaceDownQuadrupleSameColorWindowCount
-                );
+                CountFaceDownSameColorWindows(pile, first, ref tripleWindows, ref quadrupleWindows);
             }
+
+            var m = new DealStaticMetrics {
+                KeyAceCoverDepths = aceCovers.Count > 0 ? aceCovers.ToArray() : System.Array.Empty<int>(),
+                KeyTwoCoverDepths = twoCovers.Count > 0 ? twoCovers.ToArray() : System.Array.Empty<int>(),
+                KeyKingCoverDepths = kingCovers.Count > 0 ? kingCovers.ToArray() : System.Array.Empty<int>(),
+                FaceDownTripleSameColorWindowCount = tripleWindows,
+                FaceDownQuadrupleSameColorWindowCount = quadrupleWindows,
+            };
 
             Pile stock = board.GetPile(Board.kStockPile);
 

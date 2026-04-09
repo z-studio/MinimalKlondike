@@ -64,10 +64,30 @@ namespace Klondike.LevelGeneration {
                     p.MaxRounds = mr;
                 } 
                 // —— 筛选（下一参数均为 "L,R"，写入 p.Filters，最终由 LevelGenerationFilters.Passes 判定）——
-                else if (a == "--filter-key-depth"
+                else if (a == "--filter-key-ace-cover-depth"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
-                    p.Filters.KeyDepthMax = parsed;
+                    p.Filters.KeyAceCoverDepth = parsed;
+                } else if (a == "--filter-key-ace-cover-count"
+                           && i + 1 < args.Length
+                           && IntRangeFilter.TryParse(args[++i], out parsed)) {
+                    p.Filters.KeyAceCoverCount = parsed;
+                } else if (a == "--filter-key-two-cover-depth"
+                           && i + 1 < args.Length
+                           && IntRangeFilter.TryParse(args[++i], out parsed)) {
+                    p.Filters.KeyTwoCoverDepth = parsed;
+                } else if (a == "--filter-key-two-cover-count"
+                           && i + 1 < args.Length
+                           && IntRangeFilter.TryParse(args[++i], out parsed)) {
+                    p.Filters.KeyTwoCoverCount = parsed;
+                } else if (a == "--filter-key-king-cover-depth"
+                           && i + 1 < args.Length
+                           && IntRangeFilter.TryParse(args[++i], out parsed)) {
+                    p.Filters.KeyKingCoverDepth = parsed;
+                } else if (a == "--filter-key-king-cover-count"
+                           && i + 1 < args.Length
+                           && IntRangeFilter.TryParse(args[++i], out parsed)) {
+                    p.Filters.KeyKingCoverCount = parsed;
                 } else if (a == "--filter-first-reveal"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
@@ -229,16 +249,21 @@ namespace Klondike.LevelGeneration {
 
                 --config PATH         读取 YAML 配置（UTF-8，支持 # 注释）；扩展名须为 .yaml 或 .yml；可多次指定，后读入的覆盖同名字段；再之后的命令行选项仍可覆盖
                 --attempts N          尝试局数（默认 1000）
-                --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss-fff 再扩展名；本局结果追加写入该文件（默认 qualified_deals.txt）
+                --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss-fff 再扩展名；合格局追加写入（默认 qualified_deals.txt）。每局：牌局串一行、走法一行（同 Board.MovesMadeOutput）、再空一行
                 -D #                  每次翻库存张数
                 -S #                  求解最大结点数
-                --max-rounds #        传入 Board.Solve（默认 15）
-                --seed N              仅 ShuffleCardWeight：第 t 次尝试种子为 N+t（同配置里 levelGenSpecSeed）
+                --max-rounds #        传入 Board.Solve 的 maxRounds（默认 15）；maxMoves 固定 250（与 Board.Solve 默认一致）
 
                 发牌：始终使用 Board.ShuffleCardWeight；52 维权重在配置文件的 cardWeights 中设置（省略则全 1）。
 
                 筛选（左开右闭 (L,R]，L==R 表示等于 L；未指定则不筛该项）：
-                --filter-key-depth L,R           关键牌（盖牌中 A/2/K）上方盖牌张数（全局最大）
+                盖牌 A/2/K（各点数独立）：须同时给出「张数」筛才生效。深度筛可选；未给深度筛时凡该点数的盖牌均计入张数。
+                --filter-key-ace-cover-depth L,R    盖牌 A：盖牌深度 first-j-1 落入 (L,R] 才计入张数
+                --filter-key-ace-cover-count L,R    计入的盖牌 A 的张数须在 (L,R]
+                --filter-key-two-cover-depth L,R    同上，点数为 2
+                --filter-key-two-cover-count L,R
+                --filter-key-king-cover-depth L,R   同上，点数为 K
+                --filter-key-king-cover-count L,R
                 --filter-first-reveal L,R        首次由暗变明时，牌桌步数+牌库步数之和
                 --filter-solve-moves L,R         通关解序列的 Move 条数（与 Board.RecordedMoves 长度一致）
                 --filter-all-revealed L,R        七列盖牌全翻开时的步数（同上）
@@ -249,6 +274,8 @@ namespace Klondike.LevelGeneration {
                 --filter-facedown-quadruple-samecolor L,R  同上，连续 4 张同色
 
                 入库条件：仅当 Solve 返回 Solved 或 Minimal 且通过上述筛选。
+
+                走法行格式见 Board.MovesMadeOutput（@ 表示 talon 翻动，其后为各 Move 的字母对）。
 
                 示例：LevelGeneration/levelgen.example.yaml
                 """

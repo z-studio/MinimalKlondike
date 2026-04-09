@@ -4,9 +4,15 @@ namespace Klondike.LevelGeneration {
     /// </summary>
     public struct DealStaticMetrics {
         /// <summary>
-        /// 盖牌里 A/2/K：每张「上方还有几张盖牌」的最大值，即 max(first - j - 1)
+        /// 七列盖牌中每张 A 的「上方盖牌张数」<c>first - j - 1</c>（按扫描顺序；无则为空数组）。
         /// </summary>
-        public int MaxKeyCardCoverCount;
+        public int[] KeyAceCoverDepths;
+
+        /// <summary>同上，点数为 2。</summary>
+        public int[] KeyTwoCoverDepths;
+
+        /// <summary>同上，点数为 K。</summary>
+        public int[] KeyKingCoverDepths;
 
         /// <summary>
         /// 库存中 A 的张数。
@@ -27,7 +33,7 @@ namespace Klondike.LevelGeneration {
         /// 七列盖牌合计：每列盖牌段内，长度为 3 的滑动窗里「连续 3 张同色（全红或全黑）」出现几次（可重叠）
         /// </summary>
         public int FaceDownTripleSameColorWindowCount;
-        
+
         /// <summary>
         /// 同上，长度为 4 的滑动窗、连续 4 张同色
         /// </summary>

@@ -5,7 +5,6 @@ namespace Klondike.LevelGeneration {
     internal sealed class LevelGenerationRunParameters {
         /// <summary>入库前筛选；由 YAML <c>filters</c> 与命令行 <c>--filter-*</c> 合并写入。</summary>
         public LevelGenerationFilters Filters = new();
-
         public int Attempts = 1000;
         public string OutPath = "qualified_deals.txt";
         public int DrawCount = 1;
@@ -56,23 +55,24 @@ namespace Klondike.LevelGeneration {
 
             // filters：字符串 "L,R" → IntRangeFilter，写入运行时 Filters（与 CLI --filter-* 共用同一套字段）
             if (cfg.Filters != null) {
-                ApplyFilterString(cfg.Filters.KeyDepthMax, ref Filters.KeyDepthMax);
+                ApplyFilterString(cfg.Filters.KeyAceCoverDepth, ref Filters.KeyAceCoverDepth);
+                ApplyFilterString(cfg.Filters.KeyAceCoverCount, ref Filters.KeyAceCoverCount);
+                ApplyFilterString(cfg.Filters.KeyTwoCoverDepth, ref Filters.KeyTwoCoverDepth);
+                ApplyFilterString(cfg.Filters.KeyTwoCoverCount, ref Filters.KeyTwoCoverCount);
+                ApplyFilterString(cfg.Filters.KeyKingCoverDepth, ref Filters.KeyKingCoverDepth);
+                ApplyFilterString(cfg.Filters.KeyKingCoverCount, ref Filters.KeyKingCoverCount);
                 ApplyFilterString(cfg.Filters.FirstRevealTotalSteps, ref Filters.FirstRevealTotalSteps);
                 ApplyFilterString(cfg.Filters.SolveMovesMade, ref Filters.SolveMovesMade);
                 ApplyFilterString(cfg.Filters.AllTableauFaceUpSteps, ref Filters.AllTableauFaceUpSteps);
                 ApplyFilterString(cfg.Filters.StockAceCount, ref Filters.StockAceCount);
                 ApplyFilterString(cfg.Filters.TableauVisibleAceCount, ref Filters.TableauVisibleAceCount);
                 ApplyFilterString(cfg.Filters.ImmediatelyMovableFromTableau, ref Filters.ImmediatelyMovableFromTableau);
-
                 ApplyFilterString(
                     cfg.Filters.FaceDownTripleSameColorWindowCount,
-                    ref Filters.FaceDownTripleSameColorWindowCount
-                );
-
+                    ref Filters.FaceDownTripleSameColorWindowCount);
                 ApplyFilterString(
                     cfg.Filters.FaceDownQuadrupleSameColorWindowCount,
-                    ref Filters.FaceDownQuadrupleSameColorWindowCount
-                );
+                    ref Filters.FaceDownQuadrupleSameColorWindowCount);
             }
         }
 

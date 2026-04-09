@@ -48,14 +48,14 @@ Klondike [选项…] <最后一项：牌局输入>
 
 - **入库条件**：仅当 `Solve` 返回 `Solved` 或 `Minimal` 的局才会写入；未证可解或 `Unknown`/`Impossible` 一律丢弃。
 - **步数**：与引擎一致，**一步 = 一次 `MakeMove`**；「首次翻盖牌」指七列**盖牌张数**（各列 `First` 之和）**首次减少**的那一步（不把单纯废牌接桌当成盖牌翻开）。
-- **关键牌盖牌深度**：仅统计盖牌中的 A / 2 / K，**深度**= 该牌**上方**还有多少张盖牌（更靠近明牌分界）；筛选用整局**最大**值。
+- **盖牌 A / 2 / K 筛选（分组）**：每种点数独立。对盖牌中的该点数，**盖牌深度**= `first - j - 1`（该牌上方还有几张盖牌）。须配置**张数**筛（如 `--filter-key-ace-cover-count` / YAML `keyAceCoverCount`）该组才生效；可选再配**深度**筛，仅当深度落入 `(L,R]` 的牌才计入张数；不配深度筛时，该点数在盖牌里的**全部**张都计入张数。例：深度在 `(0,2]` 的盖牌 A 有 `(2,4]` 张 → `keyAceCoverDepth: "0,2"` 且 `keyAceCoverCount: "2,4"`。
 - **区间筛选**：`(L,R]` 左开右闭；`L==R` 表示等于 `L`。详见 `LevelGenerateRunner --help`。
 
 示例：
 
 ```bash
 dotnet run --project Klondike.csproj -- --generate --attempts 200 --out ./levels.txt -D 1 \
-  --filter-key-depth 0,3 --filter-first-reveal 0,8 --filter-solve-moves 0,400
+  --filter-first-reveal 0,8 --filter-solve-moves 0,400
 ```
 
 实现位于 `LevelGeneration/`；`Board` 的关卡用 API 在 `Entities/Board.LevelGeneration.cs`（与 `Board.cs` **分部类**同一名称，便于区分）。`Program` 的 `--generate` 入口在 `Program.LevelGeneration.cs`。

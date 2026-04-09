@@ -59,8 +59,19 @@ namespace Klondike.LevelGeneration {
     /// 省略或空字符串表示不筛该项。键名与 <see cref="LevelGenerationFilters"/> 字段对应。
     /// </summary>
     public sealed class LevelGenerationConfigFilters {
-        /// <summary>关键牌深度：盖牌中 A/2/K 上方盖牌张数的全局最大值；同 <c>--filter-key-depth</c>。</summary>
-        public string KeyDepthMax { get; set; }
+        /// <summary>盖牌 A：深度区间 <c>L,R</c>（左开右闭），与 <c>keyAceCoverCount</c> 联用。</summary>
+        public string KeyAceCoverDepth { get; set; }
+
+        /// <summary>盖牌 A：满足深度条件的张数区间；未写则不按 A 做该组筛选。</summary>
+        public string KeyAceCoverCount { get; set; }
+
+        public string KeyTwoCoverDepth { get; set; }
+
+        public string KeyTwoCoverCount { get; set; }
+
+        public string KeyKingCoverDepth { get; set; }
+
+        public string KeyKingCoverCount { get; set; }
 
         /// <summary>首次由暗翻明时，牌桌步数与牌库步数之和；同 <c>--filter-first-reveal</c>。</summary>
         public string FirstRevealTotalSteps { get; set; }
