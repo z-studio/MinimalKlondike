@@ -21,6 +21,29 @@ namespace Klondike.Entities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Pile GetPile(int pileIndex) => m_Piles[pileIndex];
 
+        /// <summary>
+        /// 当前 <see cref="m_Deck"/>（与 <see cref="GetDeal"/> 导出顺序一致，下标 0～51）中，点数为 A、2、K 的牌所在下标。
+        /// 用于关卡生成等旁路文本输出；格式 <c>A:i,j,…|2:…|K:…</c>，无则段内为空（如 <c>A:</c>）。
+        /// </summary>
+        public string GetKeyRankDeckIndexSummary() {
+            var ace = new List<int>(4);
+            var two = new List<int>(4);
+            var king = new List<int>(4);
+
+            for (var i = 0; i < kDeckSize; i++) {
+                ECardRank r = m_Deck[i].Rank;
+
+                if (r == ECardRank.Ace) {
+                    ace.Add(i);
+                } else if (r == ECardRank.Two) {
+                    two.Add(i);
+                } else if (r == ECardRank.King) {
+                    king.Add(i);
+                }
+            }
+
+            return $"A:{string.Join(",", ace)}|2:{string.Join(",", two)}|K:{string.Join(",", king)}";
+        }
 
         #region Level Generation
 

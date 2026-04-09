@@ -7,7 +7,7 @@ using Klondike.Entities;
 namespace Klondike.LevelGeneration {
     /// <summary>
     /// 批量随机发牌 → 求解 → 仅当 <see cref="ESolveResult.Solved"/> 或 <see cref="ESolveResult.Minimal"/> 且通过筛选时写入输出文件。
-    /// 每局三行：牌局串一行、<see cref="Board.MovesMadeOutput"/> 走法一行、空行分隔；不修改 <see cref="Board"/> 核心逻辑，仅调用其公开 API。
+    /// 每局四行：牌局串一行、<see cref="Board.GetKeyRankDeckIndexSummary"/>（m_Deck 中 A/2/K 的 0-based 下标）一行、<see cref="Board.MovesMadeOutput"/> 走法一行、空行分隔；不修改 <see cref="Board"/> 核心逻辑，仅调用其公开 API。
     /// </summary>
     public static class LevelGenerateRunner {
         public static void Run(string[] args, int startIndex) {
@@ -160,6 +160,7 @@ namespace Klondike.LevelGeneration {
 
                 DealStaticMetrics stat = DealAnalyzer.ComputeStatic(board);
                 string dealLine = board.GetDeal(false);
+                string keyDeckIndicesLine = board.GetKeyRankDeckIndexSummary();
 
                 var maxMoves = p.Filters.SolveMovesMade.Active ? p.Filters.SolveMovesMade.RightInclusive : 250;
                 SolveDetail detail = board.Solve(maxMoves, p.MaxRounds, p.MaxStates);
@@ -189,6 +190,7 @@ namespace Klondike.LevelGeneration {
 
                 qualified++;
                 writer.WriteLine(dealLine);
+                writer.WriteLine(keyDeckIndicesLine);
                 // ComputeReplay 已把 solution 完整 MakeMove，MovesMadeOutput 与 Solve 结束时一致（@=翻库，其后为 Move 字母对）
                 writer.WriteLine(board.MovesMadeOutput.TrimEnd());
                 writer.WriteLine();
@@ -249,12 +251,12 @@ namespace Klondike.LevelGeneration {
 
                 --config PATH         读取 YAML 配置（UTF-8，支持 # 注释）；扩展名须为 .yaml 或 .yml；可多次指定，后读入的覆盖同名字段；再之后的命令行选项仍可覆盖
                 --attempts N          尝试局数（默认 1000）
-                --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss-fff 再扩展名；合格局追加写入（默认 qualified_deals.txt）。每局：牌局串一行、走法一行（同 Board.MovesMadeOutput）、再空一行
+                --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss-fff 再扩展名；合格局追加写入（默认 qualified_deals.txt）。每局：牌局串一行、m_Deck 中 A/2/K 下标一行（GetKeyRankDeckIndexSummary）、走法一行、再空一行
                 -D #                  每次翻库存张数
                 -S #                  求解最大结点数
                 --max-rounds #        传入 Board.Solve 的 maxRounds（默认 15）；maxMoves 固定 250（与 Board.Solve 默认一致）
 
-                发牌：始终使用 Board.ShuffleCardWeight；52 维权重在配置文件的 cardWeights 中设置（省略则全 1）。
+                发牌：始终使用 Board.ShuffleCardWeight；第 t 次尝试（0-based）种子为 t；52 维权重在配置文件的 cardWeights 中设置（省略则全 1）。
 
                 筛选（左开右闭 (L,R]，L==R 表示等于 L；未指定则不筛该项）：
                 盖牌 A/2/K（各点数独立）：须同时给出「张数」筛才生效。深度筛可选；未给深度筛时凡该点数的盖牌均计入张数。

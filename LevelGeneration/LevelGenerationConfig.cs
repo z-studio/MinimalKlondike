@@ -19,7 +19,7 @@ namespace Klondike.LevelGeneration {
         public int? MaxStates { get; set; }
 
         public int? MaxRounds { get; set; }
-        
+
         /// <summary>
         /// 可选。长度须为 52，与 <c>Card.ID</c> 0～51 一致；省略等价于全权重 1。
         /// </summary>

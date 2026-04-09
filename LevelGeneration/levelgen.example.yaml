@@ -5,7 +5,7 @@
 attempts: 500
 
 # 结果文件路径；仅文件名时写到可执行文件目录；每次运行会在主文件名与扩展名之间插入时间戳；合格局追加写入
-# 每局三行：牌局串一行、走法一行（Board.MovesMadeOutput，@=翻库）、空行分隔下一局
+# 每局四行：牌局串一行、A/2/K 在 m_Deck 的 0-based 下标（A:…|2:…|K:…）、走法（MovesMadeOutput）、空行分隔下一局
 outPath: qualified_deals.txt
 
 # 每次从库存翻牌张数
