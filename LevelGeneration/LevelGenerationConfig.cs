@@ -11,13 +11,12 @@ namespace Klondike.LevelGeneration {
     public sealed class LevelGenerationConfig {
         public int? Attempts { get; set; }
 
-        /// <summary>输出路径。</summary>
+        /// <summary>结果输出路径（仅文件名时目录为可执行文件目录）。</summary>
         public string OutPath { get; set; }
 
         public int? DrawCount { get; set; }
 
         public int? MaxStates { get; set; }
-        
 
         public int? MaxRounds { get; set; }
 

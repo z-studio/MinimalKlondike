@@ -6,8 +6,8 @@ using Klondike.Entities;
 
 namespace Klondike.LevelGeneration {
     /// <summary>
-    /// 批量随机发牌 → 求解 → 仅当 <see cref="ESolveResult.Solved"/> 或 <see cref="ESolveResult.Minimal"/> 且通过筛选时写入牌串。
-    /// 不修改 <see cref="Board"/> 核心逻辑，仅调用其公开 API。
+    /// 批量随机发牌 → 求解 → 仅当 <see cref="ESolveResult.Solved"/> 或 <see cref="ESolveResult.Minimal"/> 且通过筛选时写入输出文件。
+    /// 每局三行：牌局串一行、<see cref="Board.MovesMadeOutput"/> 走法一行、空行分隔；不修改 <see cref="Board"/> 核心逻辑，仅调用其公开 API。
     /// </summary>
     public static class LevelGenerateRunner {
         public static void Run(string[] args, int startIndex) {
@@ -172,6 +172,9 @@ namespace Klondike.LevelGeneration {
 
                 qualified++;
                 writer.WriteLine(dealLine);
+                // ComputeReplay 已把 solution 完整 MakeMove，MovesMadeOutput 与 Solve 结束时一致（@=翻库，其后为 Move 字母对）
+                writer.WriteLine(board.MovesMadeOutput.TrimEnd());
+                writer.WriteLine();
                 writer.Flush();
             }
 
@@ -232,7 +235,6 @@ namespace Klondike.LevelGeneration {
                 --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss-fff 再扩展名；本局结果追加写入该文件（默认 qualified_deals.txt）
                 -D #                  每次翻库存张数
                 -S #                  求解最大结点数
-                --max-moves #         传入 Board.Solve（默认 250）
                 --max-rounds #        传入 Board.Solve（默认 15）
                 --seed N              仅 ShuffleCardWeight：第 t 次尝试种子为 N+t（同配置里 levelGenSpecSeed）
 
