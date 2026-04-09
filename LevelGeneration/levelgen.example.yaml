@@ -37,19 +37,27 @@ filters:
   # keyTwoCoverCount: "0,4"
   # keyKingCoverDepth: "0,6"
   # keyKingCoverCount: "0,4"
+  
   # 首次由暗翻明时牌桌步数+牌库步数之和
   # firstRevealTotalSteps: "0,50"
+  
   # 通关解的步数
   solveMovesMade: "10,200"
+  
   # 七列盖牌全翻开时的步数
   # allTableauFaceUpSteps: "0,9999"
+  
   # 库存中 A 的张数
   # stockAceCount: "0,4"
+  
   # 桌面明牌区 A 的张数
   # tableauVisibleAceCount: "0,4"
+  
   # 开局可移动桌面走法条数
   # immediatelyMovableFromTableau: "0,20"
+  
   # 盖牌连续 3 张同色滑动窗个数
   # faceDownTripleSameColorWindowCount: "0,10"
+  
   # 连续 4 张同色
   # faceDownQuadrupleSameColorWindowCount: "0,5"
