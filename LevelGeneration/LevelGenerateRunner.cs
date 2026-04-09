@@ -7,7 +7,7 @@ using Klondike.Entities;
 namespace Klondike.LevelGeneration {
     /// <summary>
     /// 批量随机发牌 → 求解 → 仅当 <see cref="ESolveResult.Solved"/> 或 <see cref="ESolveResult.Minimal"/> 且通过筛选时写入输出文件。
-    /// 每局四行：牌局串一行、<see cref="Board.GetKeyRankDeckIndexSummary"/>（m_Deck 中 A/2/K 的 0-based 下标）一行、<see cref="Board.MovesMadeOutput"/> 走法一行、空行分隔；不修改 <see cref="Board"/> 核心逻辑，仅调用其公开 API。
+    /// 每局五行（末行为空行分隔）：牌局串、A/2/K 下标、<see cref="Board.MovesMadeOutput"/> 走法、一行「执行序列步数（<see cref="SolveDetail.Moves"/>/<see cref="Board.MovesMade"/>）+ 空格 + 七列盖牌全翻开时的同口径累计步数」（见 <see cref="DealReplayMetrics.AllTableauFaceUpStepTotal"/>，未全翻开为 -1）。
     /// </summary>
     public static class LevelGenerateRunner {
         public static void Run(string[] args, int startIndex) {
@@ -182,12 +182,12 @@ namespace Klondike.LevelGeneration {
                     continue;
                 }
 
+                int solveExecutionSteps = detail.Moves;
+
                 board.Reset();
                 DealReplayMetrics replay = DealAnalyzer.ComputeReplay(board, solution);
-                // 与「解的操作步数」一致：通关解里 Move 的条数（同 RecordedMoves / solution.Length），非 Board.MovesMade 的折算点击数
-                int solutionMoveCount = solution.Length;
 
-                if (!p.Filters.Passes(stat, replay, solutionMoveCount)) {
+                if (!p.Filters.Passes(stat, replay, solveExecutionSteps)) {
                     continue;
                 }
 
@@ -195,7 +195,7 @@ namespace Klondike.LevelGeneration {
                 writer.WriteLine(dealLine);
                 writer.WriteLine(keyDeckIndicesLine);
                 // ComputeReplay 已把 solution 完整 MakeMove，MovesMadeOutput 与 Solve 结束时一致（@=翻库，其后为 Move 字母对）
-                writer.WriteLine($"总步数: {detail.Moves}  |  重放步数：{solutionMoveCount}  |  所有盖牌被翻开时走过的步数：{replay.AllTableauFaceUpStepTotal}");
+                writer.WriteLine($"总步数: {detail.Moves}  |  重放步数：{solveExecutionSteps}  |  所有盖牌被翻开时走过的步数：{replay.AllTableauFaceUpStepTotal}");
                 writer.WriteLine($"执行序列：{board.MovesMadeOutput.TrimEnd()}");
                 writer.WriteLine();
                 writer.Flush();
@@ -255,7 +255,7 @@ namespace Klondike.LevelGeneration {
 
                 --config PATH         读取 YAML 配置（UTF-8，支持 # 注释）；扩展名须为 .yaml 或 .yml；可多次指定，后读入的覆盖同名字段；再之后的命令行选项仍可覆盖
                 --attempts N          尝试局数（默认 1000）
-                --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss 再扩展名；合格局追加写入（默认 qualified_deals.txt）。每局：牌局串一行、m_Deck 中 A/2/K 下标一行（GetKeyRankDeckIndexSummary）、走法一行、再空一行
+                --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss-fff 再扩展名；合格局追加写入（默认 qualified_deals.txt）。每局：牌局串、m_Deck 中 A/2/K 下标、走法、一行「执行序列步数（SolveDetail.Moves/Board.MovesMade）空格 七列盖牌全翻开同口径累计步数」（未全翻开为 -1）、再空一行
                 -D #                  每次翻库存张数
                 -S #                  求解最大结点数
                 --max-rounds #        传入 Board.Solve 的 maxRounds（默认 15）；maxMoves 固定 250（与 Board.Solve 默认一致）
@@ -270,9 +270,9 @@ namespace Klondike.LevelGeneration {
                 --filter-key-two-cover-count L,R
                 --filter-key-king-cover-depth L,R   同上，点数为 K
                 --filter-key-king-cover-count L,R
-                --filter-first-reveal L,R        首次由暗变明时，牌桌步数+牌库步数之和
-                --filter-solve-moves L,R         通关解序列的 Move 条数（与 Board.RecordedMoves 长度一致）
-                --filter-all-revealed L,R        七列盖牌全翻开时的步数（同上）
+                --filter-first-reveal L,R        首次由暗变明时的累计执行序列步数（与 Board.MovesMade 口径一致）
+                --filter-solve-moves L,R         通关的执行序列步数（SolveDetail.Moves，同 Board.MovesMade；非 RecordedMoves 条数）
+                --filter-all-revealed L,R        七列盖牌全翻开时的累计执行序列步数（同上口径）
                 --filter-stock-aces L,R          库存 A 的张数
                 --filter-visible-aces L,R        桌面明牌区 A 的张数
                 --filter-movable-tableau L,R     开局可移动桌面走法条数

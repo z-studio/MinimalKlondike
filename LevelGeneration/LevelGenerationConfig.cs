@@ -73,13 +73,13 @@ namespace Klondike.LevelGeneration {
 
         public string KeyKingCoverCount { get; set; }
 
-        /// <summary>首次由暗翻明时，牌桌步数与牌库步数之和；同 <c>--filter-first-reveal</c>。</summary>
+        /// <summary>首次由暗翻明时的累计执行序列步数（与 <see cref="Klondike.Entities.Board.MovesMade"/> 口径一致）；同 <c>--filter-first-reveal</c>。</summary>
         public string FirstRevealTotalSteps { get; set; }
 
-        /// <summary>通关解中 Move 的条数（与 RecordedMoves 长度一致）；同 <c>--filter-solve-moves</c>。</summary>
+        /// <summary>通关的执行序列步数（<see cref="Klondike.Entities.SolveDetail.Moves"/>，同 <see cref="Klondike.Entities.Board.MovesMade"/>）；同 <c>--filter-solve-moves</c>。</summary>
         public string SolveMovesMade { get; set; }
 
-        /// <summary>七列盖牌全部翻开时的累计步数；同 <c>--filter-all-revealed</c>。</summary>
+        /// <summary>七列盖牌全部翻开时的累计执行序列步数（同上口径）；同 <c>--filter-all-revealed</c>。</summary>
         public string AllTableauFaceUpSteps { get; set; }
 
         /// <summary>库存 pile 中 A 的张数；同 <c>--filter-stock-aces</c>。</summary>

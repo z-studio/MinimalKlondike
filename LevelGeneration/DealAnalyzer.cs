@@ -154,32 +154,37 @@ namespace Klondike.LevelGeneration {
                 AllTableauFaceUpStepTotal = -1
             };
 
-            int tableauSteps = 0;
-            int talonSteps = 0;
+            // 与 <see cref="Board.MovesMade"/> / <see cref="Klondike.Entities.SolveDetail.Moves"/> 同源：每步对「执行序列步数」的贡献取重放前后差值；
+            // 该贡献按本步 <see cref="Move.From"/> 是否废牌源归入两桶，两桶之和恒等于当前累计 MovesMade。
+            int tableauWeighted = 0;
+            int talonWeighted = 0;
             int prevHidden = SumTableauFaceDownCount(board);
 
             for (var i = 0; i < solution.Length; i++) {
                 Move mv = solution[i];
+                int beforeMoves = board.MovesMade;
+                board.MakeMove(mv);
+                int afterMoves = board.MovesMade;
+                int delta = afterMoves - beforeMoves;
 
                 if (IsTalonMove(mv)) {
-                    talonSteps++;
+                    talonWeighted += delta;
                 } else {
-                    tableauSteps++;
+                    tableauWeighted += delta;
                 }
 
-                board.MakeMove(mv);
                 int nextHidden = SumTableauFaceDownCount(board);
 
                 if (r.FirstRevealStepTotal < 0 && nextHidden < prevHidden) {
-                    r.FirstRevealStepTotal = tableauSteps + talonSteps;
-                    r.FirstRevealTableauSteps = tableauSteps;
-                    r.FirstRevealTalonSteps = talonSteps;
+                    r.FirstRevealStepTotal = afterMoves;
+                    r.FirstRevealTableauSteps = tableauWeighted;
+                    r.FirstRevealTalonSteps = talonWeighted;
                 }
 
                 prevHidden = nextHidden;
 
                 if (r.AllTableauFaceUpStepTotal < 0 && AllTableauWithoutFaceDown(board)) {
-                    r.AllTableauFaceUpStepTotal = tableauSteps + talonSteps;
+                    r.AllTableauFaceUpStepTotal = afterMoves;
                 }
             }
 
