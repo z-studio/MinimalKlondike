@@ -148,6 +148,9 @@ namespace Klondike.LevelGeneration {
 
             for (var t = 0; t < p.Attempts; t++) {
                 tried++;
+                
+                Console.WriteLine($"开始第 {tried} 局。");
+                
                 var board = new Board(p.DrawCount) {
                     AllowFoundationToTableau = true
                 };
