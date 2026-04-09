@@ -11,7 +11,6 @@ namespace Klondike.LevelGeneration {
         public int DrawCount = 1;
         public int MaxStates = 50_000_000;
         public int MaxRounds = 15;
-        public int LevelGenSpecSeed;
 
         /// <summary>
         /// 与 <see cref="Klondike.Entities.Board.ShuffleCardWeight"/> 一致：长度 52，下标即 <c>Card.ID</c>（0～51）。
@@ -45,10 +44,6 @@ namespace Klondike.LevelGeneration {
 
             if (cfg.MaxRounds is { } mr) {
                 MaxRounds = mr;
-            }
-
-            if (cfg.LevelGenSpecSeed is { } seed) {
-                LevelGenSpecSeed = seed;
             }
 
             if (cfg.CardWeights != null) {

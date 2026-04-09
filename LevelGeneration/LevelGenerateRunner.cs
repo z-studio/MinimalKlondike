@@ -62,13 +62,9 @@ namespace Klondike.LevelGeneration {
                     p.MaxStates = s;
                 } else if (a == "--max-rounds" && i + 1 < args.Length && int.TryParse(args[++i], out int mr)) {
                     p.MaxRounds = mr;
-                } else if (a == "--seed"
-                           && i + 1 < args.Length
-                           && int.TryParse(args[++i], out int baseSeed)) {
-                    p.LevelGenSpecSeed = baseSeed;
-
+                } 
                 // —— 筛选（下一参数均为 "L,R"，写入 p.Filters，最终由 LevelGenerationFilters.Passes 判定）——
-                } else if (a == "--filter-key-depth"
+                else if (a == "--filter-key-depth"
                            && i + 1 < args.Length
                            && IntRangeFilter.TryParse(args[++i], out parsed)) {
                     p.Filters.KeyDepthMax = parsed;
@@ -127,6 +123,7 @@ namespace Klondike.LevelGeneration {
                 Directory.CreateDirectory(dir);
             }
 
+            var seed = (int)DateTime.UtcNow.Ticks;
             using var writer = new StreamWriter(outPath, append: true, Encoding.UTF8);
 
             for (var t = 0; t < p.Attempts; t++) {
@@ -136,9 +133,9 @@ namespace Klondike.LevelGeneration {
                 };
 
                 if (p.CardWeights != null) {
-                    board.ShuffleCardWeight(p.LevelGenSpecSeed + t, p.CardWeights);
+                    board.ShuffleCardWeight(seed + t, p.CardWeights);
                 } else {
-                    board.ShuffleCardWeight(p.LevelGenSpecSeed + t);
+                    board.ShuffleCardWeight(seed + t);
                 }
 
                 DealStaticMetrics stat = DealAnalyzer.ComputeStatic(board);
