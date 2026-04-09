@@ -50,12 +50,13 @@ namespace Klondike.LevelGeneration {
         public int FirstRevealStepTotal;
 
         /// <summary>
-        /// 同上时刻已执行的牌桌相关步数（非废牌源）。
+        /// 同上时刻已执行的「非废牌源」步数：凡 <see cref="Klondike.Entities.Move.From"/> 不是 <see cref="Klondike.Entities.Board.kWastePile"/> 的 <see cref="Klondike.Entities.Board.MakeMove"/> 均计入
+        /// （含桌面列、回收位为源的走法；开启 <see cref="Klondike.Entities.Board.AllowFoundationToTableau"/> 时的回收位→桌面亦在此列，与 <see cref="DealAnalyzer.ComputeReplay"/> 一致）。
         /// </summary>
         public int FirstRevealTableauSteps;
 
         /// <summary>
-        /// 同上时刻已执行的牌库/废牌源步数。
+        /// 同上时刻已执行的废牌源步数：仅当 <see cref="Klondike.Entities.Move.From"/>==<see cref="Klondike.Entities.Board.kWastePile"/>（含从废牌打出与库存翻动编码为废牌源时）。
         /// </summary>
         public int FirstRevealTalonSteps;
 

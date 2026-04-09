@@ -39,6 +39,7 @@ namespace Klondike.LevelGeneration {
             return true;
         }
 
+        /// <summary>与 <see cref="DealReplayMetrics.FirstRevealTalonSteps"/> 一致：仅废牌堆为源计为「牌库/废牌」；回收位→桌面等其余源均计为 <see cref="DealReplayMetrics.FirstRevealTableauSteps"/>。</summary>
         private static bool IsTalonMove(Move move) {
             return move.From == Board.kWastePile;
         }
