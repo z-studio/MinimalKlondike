@@ -194,7 +194,7 @@ namespace Klondike.LevelGeneration {
                 qualified++;
                 writer.WriteLine(dealLine);
                 writer.WriteLine(keyDeckIndicesLine);
-                writer.WriteLine($"总步数: {detail.Moves}  |  重放步数：{solution.Length}  |  所有盖牌被翻开时走过的步数：{replay.AllTableauFaceUpStepTotal}");
+                writer.WriteLine($"总步数: {detail.Moves}  |  Solution Length：{solution.Length}  |  所有盖牌被翻开时走过的步数：{replay.AllTableauFaceUpStepTotal}");
                 writer.WriteLine($"执行序列：{board.MovesMadeOutput.TrimEnd()}");
                 writer.WriteLine();
                 writer.Flush();
