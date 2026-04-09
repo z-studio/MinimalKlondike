@@ -192,7 +192,7 @@ namespace Klondike.LevelGeneration {
                 writer.WriteLine(dealLine);
                 writer.WriteLine(keyDeckIndicesLine);
                 // ComputeReplay 已把 solution 完整 MakeMove，MovesMadeOutput 与 Solve 结束时一致（@=翻库，其后为 Move 字母对）
-                writer.WriteLine(board.MovesMadeOutput.TrimEnd());
+                writer.WriteLine($"步数: {detail.Moves}  |  执行序列：{board.MovesMadeOutput.TrimEnd()}");
                 writer.WriteLine();
                 writer.Flush();
             }
@@ -237,7 +237,7 @@ namespace Klondike.LevelGeneration {
                 extension = ".txt";
             }
 
-            string stamp = DateTime.Now.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture);
+            string stamp = DateTime.Now.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
             string stampedName = $"{stem}_{stamp}{extension}";
             return Path.GetFullPath(Path.Combine(resolvedDirectory, stampedName));
         }
@@ -251,7 +251,7 @@ namespace Klondike.LevelGeneration {
 
                 --config PATH         读取 YAML 配置（UTF-8，支持 # 注释）；扩展名须为 .yaml 或 .yml；可多次指定，后读入的覆盖同名字段；再之后的命令行选项仍可覆盖
                 --attempts N          尝试局数（默认 1000）
-                --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss-fff 再扩展名；合格局追加写入（默认 qualified_deals.txt）。每局：牌局串一行、m_Deck 中 A/2/K 下标一行（GetKeyRankDeckIndexSummary）、走法一行、再空一行
+                --out PATH            仅文件名无目录时写到可执行文件同目录；每次运行在主文件名后加 _yyyyMMdd-HHmmss 再扩展名；合格局追加写入（默认 qualified_deals.txt）。每局：牌局串一行、m_Deck 中 A/2/K 下标一行（GetKeyRankDeckIndexSummary）、走法一行、再空一行
                 -D #                  每次翻库存张数
                 -S #                  求解最大结点数
                 --max-rounds #        传入 Board.Solve 的 maxRounds（默认 15）；maxMoves 固定 250（与 Board.Solve 默认一致）

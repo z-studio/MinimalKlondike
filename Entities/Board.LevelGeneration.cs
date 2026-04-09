@@ -34,15 +34,15 @@ namespace Klondike.Entities {
                 ECardRank r = m_Deck[i].Rank;
 
                 if (r == ECardRank.Ace) {
-                    ace.Add(i);
+                    ace.Add(i + 1);
                 } else if (r == ECardRank.Two) {
-                    two.Add(i);
+                    two.Add(i + 1);
                 } else if (r == ECardRank.King) {
-                    king.Add(i);
+                    king.Add(i + 1);
                 }
             }
 
-            return $"A:{string.Join(",", ace)}|2:{string.Join(",", two)}|K:{string.Join(",", king)}";
+            return $"关键牌位置：[A] {string.Join(",", ace)}  |  [2] {string.Join(",", two)}  |  [K] {string.Join(",", king)}";
         }
 
         #region Level Generation
