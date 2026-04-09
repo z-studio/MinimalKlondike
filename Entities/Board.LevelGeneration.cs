@@ -75,9 +75,15 @@ namespace Klondike.Entities {
                 remaining.Add(new Card(id));
             }
 
-            foreach (var index in TableFillOrder2DeckIndex) {
+            foreach (var slotOneBased in TableFillOrder2DeckIndex) {
+                if (slotOneBased < 1 || slotOneBased > kDeckSize) {
+                    throw new InvalidOperationException(
+                        $"TableFillOrder2DeckIndex 含非法项 {slotOneBased}，须为 1～{kDeckSize}。");
+                }
+
+                int deckIndex = slotOneBased - 1;
                 int pick = PickWeightedIndex(rng, remaining, cardWeights);
-                m_Deck[index] = remaining[pick];
+                m_Deck[deckIndex] = remaining[pick];
                 remaining.RemoveAt(pick);
             }
 
